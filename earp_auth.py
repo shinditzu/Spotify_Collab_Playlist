@@ -22,7 +22,7 @@ class SpotipyAuth:
                                                client_secret=client_secret, 
                                                redirect_uri=redirect_uri,
                                                scope=scope,
-                                               )
+                                               open_browser=False)
         )
 
 def main():
