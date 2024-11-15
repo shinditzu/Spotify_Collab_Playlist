@@ -16,6 +16,7 @@ import os
 #print(os.environ.get('SPOTIPY_CLIENT_SECRET'))
 #TODO turn this in to a function maybe and pass playlists as args? 
 # TODO handle yearly compilation playlist cycling
+# TODO fix output folder permission on ubuntu
 
 sfquery = SpotipyAuth()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
