@@ -1,0 +1,5 @@
+env.txt
+/outputs
+.DS_Store
+.cache
+__pycache__/earp_auth.cpython-312.pyc
