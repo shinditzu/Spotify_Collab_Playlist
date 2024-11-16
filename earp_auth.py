@@ -23,6 +23,7 @@ class SpotipyAuth:
                                                redirect_uri=redirect_uri,
                                                scope=scope,
                                                cache_path='./tokens.txt',
+                                               open_browser=False
                                                )
         )
 
