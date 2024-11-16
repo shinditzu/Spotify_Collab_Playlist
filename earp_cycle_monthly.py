@@ -33,7 +33,7 @@ track_id_month = []
 debug = 1
 script_dir=os.path.dirname(os.path.abspath(__file__))
 output_dir=os.path.join(script_dir, '/output')
-token_path=os.path.join(script_dir, "token.txt")
+#token_path=os.path.join(script_dir, "token.txt")
 
 # File creation operations go here
 try:
@@ -85,7 +85,7 @@ sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 # Playlist manipulation logic ends here
 
 #Adds a block of songs to the monthly playlist for debugging.
-if debug is 1:
+if debug == 1:
     sfquery = SpotipyAuth()
     ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
     track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
