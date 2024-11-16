@@ -11,12 +11,14 @@ import csv
 from earp_auth import SpotipyAuth
 from pathlib import Path
 import os
+import time
 
 #print(os.environ.get('SPOTIPY_CLIENT_ID'))
 #print(os.environ.get('SPOTIPY_CLIENT_SECRET'))
 #TODO turn this in to a function maybe and pass playlists as args? 
 # TODO handle yearly compilation playlist cycling
 # TODO fix output folder permission on ubuntu
+# TODO build in args for debugging
 
 sfquery = SpotipyAuth()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
@@ -28,6 +30,7 @@ playlist_name = ep_playlist['name'] # var for playlist name
 #trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
 trackdata = []
 track_id_month = []
+debug = 1
 
 # File creation operations go here
 try:
@@ -77,3 +80,21 @@ sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_mon
 # write contents of this months track IDs to the yearly playlist
 sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 # Playlist manipulation logic ends here
+
+#Adds a block of songs to the monthly playlist for debugging.
+if debug is 1:
+    sfquery = SpotipyAuth()
+    ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+    track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
+                    '0C9u106kRYCqYSP3KDdk3v', 
+                    '7jBAskQhyfjmbYC0o3pXdW', 
+                    '1Jg3XdrCOZ5rrirIOggdtW', 
+                    '6dU5RxthbuaN31bRbEDlNw', 
+                    '0ZK8TGOsngrstVPsnrHbK1', 
+                    '0iCrjwLMTjWsdOKdOAZ0FC', 
+                    '3uC4r2daXertBxxc8BpbbN', 
+                    '21qnJAMtzC6S5SESuqQLEK', 
+                    '4efAv86uRxR4yQBcb3Vczq',
+                    ]
+    time.sleep(5)
+    sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
