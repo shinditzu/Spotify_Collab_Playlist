@@ -31,6 +31,9 @@ playlist_name = ep_playlist['name'] # var for playlist name
 trackdata = []
 track_id_month = []
 debug = 1
+script_dir=os.path.dirname(os.path.abspath(__file__))
+output_dir=os.path.join(script_dir, '/output')
+token_path=os.path.join(script_dir, "token.txt")
 
 # File creation operations go here
 try:
