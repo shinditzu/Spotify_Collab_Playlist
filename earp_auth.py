@@ -6,6 +6,8 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 from pprint import pprint
 
+script_dir=os.path.dirname(os.path.abspath(__file__))
+token_path=os.path.join(script_dir, "token.txt")
 
 class SpotipyAuth:
 
@@ -22,8 +24,8 @@ class SpotipyAuth:
                                                client_secret=client_secret, 
                                                redirect_uri=redirect_uri,
                                                scope=scope,
-                                               cache_path='./tokens.txt',
-                                               open_browser=False
+                                               cache_path=token_path,
+                                               open_browser=False,
                                                )
         )
 
