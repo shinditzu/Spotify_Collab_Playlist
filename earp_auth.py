@@ -20,6 +20,8 @@ class SpotipyAuth:
         client_secret = os.environ.get('SPOTIPY_CLIENT_SECRET')
         redirect_uri = os.environ.get('SPOTIPY_REDIRECT_URI')
 
+
+
         self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, 
                                                client_secret=client_secret, 
                                                redirect_uri=redirect_uri,

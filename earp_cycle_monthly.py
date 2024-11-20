@@ -32,7 +32,7 @@ trackdata = []
 track_id_month = []
 debug = 1
 script_dir=os.path.dirname(os.path.abspath(__file__))
-output_dir=os.path.join(script_dir, '/output')
+output_dir=os.path.join(script_dir, '/outputs')
 #token_path=os.path.join(script_dir, "token.txt")
 
 # File creation operations go here
