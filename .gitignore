@@ -4,3 +4,4 @@ env.txt
 .cache
 __pycache__/earp_auth.cpython-312.pyc
 token.txt
+venv
