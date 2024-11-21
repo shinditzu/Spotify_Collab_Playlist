@@ -9,6 +9,7 @@ import json
 import datetime
 import csv
 from earp_auth import SpotipyAuth
+from earp_auth import SpotipyAuthJson
 from pathlib import Path
 import os
 import time
@@ -20,7 +21,7 @@ import time
 # TODO fix output folder permission on ubuntu
 # TODO build in args for debugging
 
-sfquery = SpotipyAuth()
+sfquery = SpotipyAuthJson()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
 ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
 #ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
@@ -86,7 +87,7 @@ sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 
 #Adds a block of songs to the monthly playlist for debugging.
 if debug == 1:
-    sfquery = SpotipyAuth()
+    sfquery = SpotipyAuthJson()
     ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
     track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
                     '0C9u106kRYCqYSP3KDdk3v', 
