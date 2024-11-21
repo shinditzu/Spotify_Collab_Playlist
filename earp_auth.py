@@ -8,7 +8,8 @@ from pprint import pprint
 import json
 
 script_dir=os.path.dirname(os.path.abspath(__file__))
-token_path=os.path.join(script_dir, "token.txt")
+token_path=os.path.join(script_dir, 'token.txt')
+config_path=os.path.join(script_dir, 'config.json')
 
 class SpotipyAuth:
 
@@ -38,7 +39,7 @@ class SpotipyAuthJson:
         """
         instantiate spotipy with my auth parameters using JSON configuration parameters.
         """
-        with open('config.json') as f:
+        with open(config_path) as f:
             config = json.load(f)
 
         scope = 'user-read-private playlist-modify-public'
