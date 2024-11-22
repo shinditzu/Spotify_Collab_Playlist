@@ -20,6 +20,7 @@ import time
 # TODO handle yearly compilation playlist cycling
 # TODO fix output folder permission on ubuntu
 # TODO build in args for debugging
+# TODO fix outputs path 
 
 sfquery = SpotipyAuthJson()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
@@ -32,19 +33,19 @@ playlist_name = ep_playlist['name'] # var for playlist name
 trackdata = []
 track_id_month = []
 debug = 1
+home_dir=Path.home()
 script_dir=os.path.dirname(os.path.abspath(__file__))
-output_dir=os.path.join(script_dir, '/outputs')
-#token_path=os.path.join(script_dir, "token.txt")
+output_dir=home_dir / "spotify_cycle_outputs"
 
 # File creation operations go here
 try:
-    os.makedirs('./outputs')
+    os.makedirs(output_dir)
 except FileExistsError:
     print('Folder already exists.')
 
-file_monthly_pl_json = open((Path('outputs')) / Path(playlist_name + '_' + date + '.json'), 'w')
+file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
 #file_monthly_pl_json = open(playlist_name + '_' + date + '.json', 'w')
-file_monthly_pl_csv = open((Path('outputs')) / Path(playlist_name + '_' + date + '.csv'), 'a')
+file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
 #file_monthly_pl_csv = open(playlist_name + '_' + date + '.csv', 'r')
 
 print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
@@ -87,7 +88,6 @@ sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 
 #Adds a block of songs to the monthly playlist for debugging.
 if debug == 1:
-    sfquery = SpotipyAuthJson()
     ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
     track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
                     '0C9u106kRYCqYSP3KDdk3v', 
