@@ -22,7 +22,7 @@ import time
 # TODO build in args for debugging
 # TODO fix outputs path 
 
-sfquery = SpotipyAuthJson()
+sfquery = SpotipyAuth()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
 ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
 #ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
@@ -30,8 +30,8 @@ ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
 ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
 playlist_name = ep_playlist['name'] # var for playlist name
 #trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
-trackdata = []
-track_id_month = []
+trackdata = [] 
+track_id_month = [] # store track-IDs for this cycle
 debug = 1
 home_dir=Path.home()
 script_dir=os.path.dirname(os.path.abspath(__file__))
@@ -44,9 +44,7 @@ except FileExistsError:
     print('Folder already exists.')
 
 file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
-#file_monthly_pl_json = open(playlist_name + '_' + date + '.json', 'w')
 file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
-#file_monthly_pl_csv = open(playlist_name + '_' + date + '.csv', 'r')
 
 print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
 
@@ -63,7 +61,7 @@ for track in ep_playlist["tracks"]["items"]:
     trackdata.append(json_to_csv_fields)
     track_id_month.append(json_to_csv_fields[-1])
     #print(df)
-    #print(json_to_csv_fields)
+    print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
 #CSV Writer
 #TODO - this needs work. It should add headers on init.
@@ -72,21 +70,14 @@ with open(file_monthly_pl_csv.name, 'a',newline="") as f:
     #writer.writerow(trackdata_headers)
     writer.writerows(trackdata)
 
-""" with open(file_monthly_pl_csv.name, 'a',newline="") as f:
-    writer = csv.DictWriter
-    #writer.writerow(trackdata_headers)
-    writer.writerows(trackdata) """
-
-print(track_id_month)
-
 # Playlist manipulation logic starts here
-# clear contents of this months track IDs to the monthly playlist
+# clear contents of this month's track IDs from the monthly playlist
 sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
 # write contents of this months track IDs to the yearly playlist
 sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 # Playlist manipulation logic ends here
 
-#Adds a block of songs to the monthly playlist for debugging.
+#Adds a block of songs to the test monthly playlist for debugging.
 if debug == 1:
     ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
     track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
