@@ -34,14 +34,17 @@ trackdata = []
 track_id_month = [] # store track-IDs for this cycle
 debug = 1
 home_dir=Path.home()
+app_dir=os.path.join(Path.home(), 'spotify_cycle')
 script_dir=os.path.dirname(os.path.abspath(__file__))
-output_dir=home_dir / "spotify_cycle" / "outputs"
+#output_dir=home_dir / "spotify_cycle" / "outputs"
+output_dir=os.path.join(Path.home(), app_dir, "outputs")
 
 # File creation operations go here
 try:
     os.makedirs(output_dir)
+    print('Creating output directory')
 except FileExistsError:
-    print('Folder already exists.')
+    print('Output Folder already exists.')
 
 file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
 file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')

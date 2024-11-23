@@ -10,14 +10,23 @@ from pathlib import Path
 
 script_dir=os.path.dirname(os.path.abspath(__file__))
 token_path=os.path.join(script_dir, 'token.txt')
-home_dir=Path.home()
-config_file=os.path.join(home_dir, 'spotify_cycle', 'config.json')
+#home_dir=Path.home()
+#app_dir=home_dir / 'spotify_cycle'
+app_dir=os.path.join(Path.home(), 'spotify_cycle')
+config_file=os.path.join(app_dir, 'config.json')
 default_config={
     "SPOTIPY_CLIENT_ID": "REPLACE_ME",
     "SPOTIPY_CLIENT_SECRET": "REPLACE_ME",
     "SPOTIPY_REDIRECT_URI": "http://localhost:8123",
     "DISCORD_BOT_TOKEN": "REPLACE_ME"
 }
+
+#Check if app user directory exists
+try:
+    os.makedirs(app_dir)
+except FileExistsError:
+    print('Folder already exists.')
+
 # Check if the configuration file exists
 if not os.path.exists(config_file):
     # Create a new configuration file with default values
