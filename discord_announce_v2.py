@@ -1,3 +1,4 @@
+#TODO figure out how to run this as a service or something so it stays logged in and available
 import discord
 import logging
 from pathlib import Path
