@@ -35,7 +35,7 @@ track_id_month = [] # store track-IDs for this cycle
 debug = 1
 home_dir=Path.home()
 script_dir=os.path.dirname(os.path.abspath(__file__))
-output_dir=home_dir / "spotify_cycle_outputs"
+output_dir=home_dir / "spotify_cycle" / "outputs"
 
 # File creation operations go here
 try:

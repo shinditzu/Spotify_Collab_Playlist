@@ -6,10 +6,27 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 from pprint import pprint
 import json
+from pathlib import Path
 
 script_dir=os.path.dirname(os.path.abspath(__file__))
 token_path=os.path.join(script_dir, 'token.txt')
-config_path=os.path.join(script_dir, 'config.json')
+home_dir=Path.home()
+config_file=os.path.join(home_dir, 'spotify_cycle', 'config.json')
+default_config={
+    "SPOTIPY_CLIENT_ID": "REPLACE_ME",
+    "SPOTIPY_CLIENT_SECRET": "REPLACE_ME",
+    "SPOTIPY_REDIRECT_URI": "http://localhost:8123",
+    "DISCORD_BOT_TOKEN": "REPLACE_ME"
+}
+# Check if the configuration file exists
+if not os.path.exists(config_file):
+    # Create a new configuration file with default values
+    with open(config_file, 'w') as file:
+        json.dump(default_config, file, indent=4)
+    print(f"Configuration file '{config_file}' created with default values.")
+else:
+    print(f"Configuration file '{config_file}' already exists.")
+
 
 class SpotipyAuth:
 
@@ -39,7 +56,7 @@ class SpotipyAuthJson:
         """
         instantiate spotipy with my auth parameters using JSON configuration parameters.
         """
-        with open(config_path) as f:
+        with open(config_file) as f:
             config = json.load(f)
 
         scope = 'user-read-private playlist-modify-public'
