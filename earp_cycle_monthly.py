@@ -22,7 +22,7 @@ import time
 # TODO build in args for debugging
 # TODO fix outputs path 
 
-sfquery = SpotipyAuth()
+sfquery = SpotipyAuthJson()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
 ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
 #ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
