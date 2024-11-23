@@ -60,8 +60,7 @@ for track in ep_playlist["tracks"]["items"]:
                           ]
     trackdata.append(json_to_csv_fields)
     track_id_month.append(json_to_csv_fields[-1])
-    #print(df)
-    print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
+    #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
 #CSV Writer
 #TODO - this needs work. It should add headers on init.
