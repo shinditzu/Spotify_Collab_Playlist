@@ -29,6 +29,11 @@ class MyClient(discord.Client):
         if message.content.startswith('!hello'):
             await message.reply('Hello!', mention_author=True)
 
+        if message.content.startswith('!cycle'):
+            await message.reply('imma cycle that playlist for you!', mention_author=True)
+
+            
+
 def main():
 
     with open(config_file) as f:
