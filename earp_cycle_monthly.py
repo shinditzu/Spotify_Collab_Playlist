@@ -80,8 +80,7 @@ for track in ep_playlist["tracks"]["items"]:
     discord_song_output += track["added_by"]["id"] + " added " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
     #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
-
-
+discord_bot.send(1309330887888080947, discord_song_output)
 
 #CSV Writer
 #TODO - this needs work. It should add headers on init.
@@ -93,7 +92,6 @@ with open(file_monthly_pl_csv.name, 'a',newline="") as f:
 # Playlist manipulation logic starts here
 # clear contents of this month's track IDs from the monthly playlist
 cycle()
-discord_bot.send(1309330887888080947, discord_song_output)
 
 #sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
 # write contents of this months track IDs to the yearly playlist
