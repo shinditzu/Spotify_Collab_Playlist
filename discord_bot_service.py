@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import json
 import asyncio
+import earp_cycle_monthly
 
 #home_dir=Path.home()
 #script_dir=os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +32,8 @@ class MyClient(discord.Client):
 
         if message.content.startswith('!cycle'):
             await message.reply('imma cycle that playlist for you!', mention_author=True)
+            earp_cycle_monthly.cycle()
+            await message.reply('i cycled that playlist for you!', mention_author=True)
 
             
 
