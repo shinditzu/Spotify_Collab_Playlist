@@ -5,3 +5,5 @@ env.txt
 __pycache__/earp_auth.cpython-312.pyc
 token.txt
 venv
+__pycache__/discord_announce.cpython-312.pyc
+Spotify_Collab_Playlist.code-workspace

@@ -13,7 +13,7 @@ from earp_auth import SpotipyAuthJson
 from pathlib import Path
 import os
 import time
-import discord_announce_v2
+import discord_announce
 
 #print(os.environ.get('SPOTIPY_CLIENT_ID'))
 #print(os.environ.get('SPOTIPY_CLIENT_SECRET'))
@@ -22,6 +22,7 @@ import discord_announce_v2
 # TODO fix output folder permission on ubuntu
 # TODO build in args for debugging
 # TODO fix outputs path 
+# TODO improve discord bot. run as service and figure out how to make service send messages.
 
 sfquery = SpotipyAuthJson()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
@@ -39,7 +40,7 @@ app_dir=os.path.join(Path.home(), 'spotify_cycle')
 script_dir=os.path.dirname(os.path.abspath(__file__))
 #output_dir=home_dir / "spotify_cycle" / "outputs"
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
-discord_bot=discord_announce_v2.DiscordBot()
+discord_bot=discord_announce.DiscordBot()
 discord_song_output=""
 
 
