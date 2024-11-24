@@ -1,4 +1,3 @@
-#TODO figure out how to run this as a service or something so it stays logged in and available
 import discord
 import logging
 from pathlib import Path
@@ -6,7 +5,12 @@ import os
 import json
 import asyncio
 
+#home_dir=Path.home()
+#script_dir=os.path.dirname(os.path.abspath(__file__))
+#log_output_dir=home_dir / "spotify_cycle_outputs"
+#log_file = open(home_dir / "spotify_cycle_outputs" / "discordbot.log", "w")
 
+#handler = logging.FileHandler(filename=str(log_file), encoding='utf-8', mode='a')
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
 config_file=os.path.join(app_dir, 'config.json')
 with open(config_file) as f:
@@ -52,7 +56,7 @@ class DiscordBot:
 def main():
 
     client = DiscordBot()
-    client.send(1309330887888080947, "FEED ME A BUBBLE BUTT")
+    client.send(1309330887888080947, 'FEED ME A BUBBLE BUTT')
     
 if __name__ == '__main__':
     main()       

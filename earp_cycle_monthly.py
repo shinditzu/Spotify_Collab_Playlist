@@ -13,7 +13,7 @@ from earp_auth import SpotipyAuthJson
 from pathlib import Path
 import os
 import time
-import discord_announce
+import discord_announce_v2
 
 #print(os.environ.get('SPOTIPY_CLIENT_ID'))
 #print(os.environ.get('SPOTIPY_CLIENT_SECRET'))
@@ -22,7 +22,6 @@ import discord_announce
 # TODO fix output folder permission on ubuntu
 # TODO build in args for debugging
 # TODO fix outputs path 
-# TODO improve discord bot. run as service and figure out how to make service send messages.
 
 sfquery = SpotipyAuthJson()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
@@ -40,15 +39,8 @@ app_dir=os.path.join(Path.home(), 'spotify_cycle')
 script_dir=os.path.dirname(os.path.abspath(__file__))
 #output_dir=home_dir / "spotify_cycle" / "outputs"
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
-discord_bot=discord_announce.DiscordBot()
+discord_bot=discord_announce_v2.DiscordBot()
 discord_song_output=""
-
-
-def cycle():
-    # clear contents of this month's track IDs from the monthly playlist
-    sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
-    # write contents of this months track IDs to the yearly playlist
-    sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 
 
 # File creation operations go here
@@ -63,7 +55,6 @@ file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date 
 
 print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
 #discord_bot.send(1309330887888080947, 10*"YEET!\n")
-time.sleep(5)
 
 # TODO handle choosing interesting fields better.
 #Loop through all tracks in the playlist, write interesting fields to csv
@@ -80,6 +71,7 @@ for track in ep_playlist["tracks"]["items"]:
     discord_song_output += track["added_by"]["id"] + " added " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
     #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
+
 discord_bot.send(1309330887888080947, discord_song_output)
 
 #CSV Writer
@@ -91,11 +83,9 @@ with open(file_monthly_pl_csv.name, 'a',newline="") as f:
 
 # Playlist manipulation logic starts here
 # clear contents of this month's track IDs from the monthly playlist
-cycle()
-
-#sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
+sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
 # write contents of this months track IDs to the yearly playlist
-#sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
+sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
 #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
 # Playlist manipulation logic ends here
