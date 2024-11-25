@@ -23,86 +23,94 @@ import discord_announce_v2
 # TODO build in args for debugging
 # TODO fix outputs path 
 
-sfquery = SpotipyAuthJson()
-date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
-ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
-#ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
-ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
-ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-playlist_name = ep_playlist['name'] # var for playlist name
-#trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
-trackdata = [] 
-track_id_month = [] # store track-IDs for this cycle
-debug = 1
-home_dir=Path.home()
-app_dir=os.path.join(Path.home(), 'spotify_cycle')
-script_dir=os.path.dirname(os.path.abspath(__file__))
-#output_dir=home_dir / "spotify_cycle" / "outputs"
-output_dir=os.path.join(Path.home(), app_dir, "outputs")
-discord_bot=discord_announce_v2.DiscordBot()
-discord_song_output=""
 
 
-# File creation operations go here
-try:
-    os.makedirs(output_dir)
-    print('Creating output directory')
-except FileExistsError:
-    print('Output Folder already exists.')
+def cycle():
+    track_id_month = [] # store track-IDs for this cycle
+    discord_song_output=""
+    sfquery = SpotipyAuthJson()
+    date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
+    ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+    #ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
+    ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
+    ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
+    playlist_name = ep_playlist['name'] # var for playlist name
+    #trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
+    trackdata = [] 
+    debug = 1
+    home_dir=Path.home()
+    app_dir=os.path.join(Path.home(), 'spotify_cycle')
+    script_dir=os.path.dirname(os.path.abspath(__file__))
+    #output_dir=home_dir / "spotify_cycle" / "outputs"
+    output_dir=os.path.join(Path.home(), app_dir, "outputs")
+    discord_bot=discord_announce_v2.DiscordBot()
 
-file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
-file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
 
-print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
-#discord_bot.send(1309330887888080947, 10*"YEET!\n")
+    # File creation operations go here
+    try:
+        os.makedirs(output_dir)
+        print('Creating output directory')
+    except FileExistsError:
+        print('Output Folder already exists.')
 
-# TODO handle choosing interesting fields better.
-#Loop through all tracks in the playlist, write interesting fields to csv
-for track in ep_playlist["tracks"]["items"]:
-    json_to_csv_fields = [track["track"]["name"],
-                          track["track"]["album"]["name"],
-                          track["track"]["album"]["artists"][0]["name"],
-                          track["added_by"]["id"],
-                          track["added_at"],
-                          track["track"]["id"],
-                          ]
-    trackdata.append(json_to_csv_fields)
-    track_id_month.append(json_to_csv_fields[-1])
-    discord_song_output += track["added_by"]["id"] + " added " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
+    file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
+    file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
+    print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
+    #discord_bot.send(1309330887888080947, 10*"YEET!\n")
+
+    # TODO handle choosing interesting fields better.
+    #Loop through all tracks in the playlist, write interesting fields to csv
+    for track in ep_playlist["tracks"]["items"]:
+        json_to_csv_fields = [track["track"]["name"],
+                            track["track"]["album"]["name"],
+                            track["track"]["album"]["artists"][0]["name"],
+                            track["added_by"]["id"],
+                            track["added_at"],
+                            track["track"]["id"],
+                            ]
+        trackdata.append(json_to_csv_fields)
+        track_id_month.append(json_to_csv_fields[-1])
+        discord_song_output += track["added_by"]["id"] + " added " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
+        #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
+
+    discord_bot.send(1309330887888080947, discord_song_output)
+
+    #CSV Writer
+    #TODO - this needs work. It should add headers on init.
+    with open(file_monthly_pl_csv.name, 'a',newline="") as f:
+        writer = csv.writer(f, delimiter=',')
+        #writer.writerow(trackdata_headers)
+        writer.writerows(trackdata)
+
+    # Playlist manipulation logic starts here
+    # clear contents of this month's track IDs from the monthly playlist
+    sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
+    # write contents of this months track IDs to the yearly playlist
+    sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
     #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
+    # Playlist manipulation logic ends here
 
-discord_bot.send(1309330887888080947, discord_song_output)
+    #Adds a block of songs to the test monthly playlist for debugging.
+    if debug == 1:
+        ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+        track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
+                        '0C9u106kRYCqYSP3KDdk3v', 
+                        '7jBAskQhyfjmbYC0o3pXdW', 
+                        '1Jg3XdrCOZ5rrirIOggdtW', 
+                        '6dU5RxthbuaN31bRbEDlNw', 
+                        '0ZK8TGOsngrstVPsnrHbK1', 
+                        '0iCrjwLMTjWsdOKdOAZ0FC', 
+                        '3uC4r2daXertBxxc8BpbbN', 
+                        '21qnJAMtzC6S5SESuqQLEK', 
+                        '4efAv86uRxR4yQBcb3Vczq',
+                        ]
+        time.sleep(5)
+        sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
-#CSV Writer
-#TODO - this needs work. It should add headers on init.
-with open(file_monthly_pl_csv.name, 'a',newline="") as f:
-    writer = csv.writer(f, delimiter=',')
-    #writer.writerow(trackdata_headers)
-    writer.writerows(trackdata)
 
-# Playlist manipulation logic starts here
-# clear contents of this month's track IDs from the monthly playlist
-sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
-# write contents of this months track IDs to the yearly playlist
-sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
-#print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
+def main():
+    cycle()  
 
-# Playlist manipulation logic ends here
-
-#Adds a block of songs to the test monthly playlist for debugging.
-if debug == 1:
-    ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
-    track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
-                    '0C9u106kRYCqYSP3KDdk3v', 
-                    '7jBAskQhyfjmbYC0o3pXdW', 
-                    '1Jg3XdrCOZ5rrirIOggdtW', 
-                    '6dU5RxthbuaN31bRbEDlNw', 
-                    '0ZK8TGOsngrstVPsnrHbK1', 
-                    '0iCrjwLMTjWsdOKdOAZ0FC', 
-                    '3uC4r2daXertBxxc8BpbbN', 
-                    '21qnJAMtzC6S5SESuqQLEK', 
-                    '4efAv86uRxR4yQBcb3Vczq',
-                    ]
-    time.sleep(5)
-    sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
+if __name__ == '__main__':
+    main()       

@@ -8,3 +8,5 @@ venv
 __pycache__/discord_announce.cpython-312.pyc
 Spotify_Collab_Playlist.code-workspace
 __pycache__/earp_cycle_monthly.cpython-312.pyc
+discord.log
+
