@@ -125,11 +125,40 @@ def debugCycle():
         time.sleep(5)
         sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
+def listContributorsTest():
+    return ("IM WORKING ON IT")
+
 def listContributers():
-    return file_monthly_pl_csv
+    """
+    Parses a CSV file and returns unique values for the specified column.
+        
+    Returns:
+        set: A set of unique values from the specified column.
+    """
+    unique_values = set()
+    
+    try:
+        with open(file_monthly_pl_csv.name, mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            
+            if "Added By" not in reader.fieldnames:
+                raise ValueError(f"Column 'Added By' does not exist in the CSV file.")
+            
+            for row in reader:
+                unique_values.add(row['Added By'])
+    
+    except FileNotFoundError:
+        print(f"Error: File '{file_monthly_pl_csv}' not found.")
+    except ValueError as e:
+        print(e)
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    
+    return unique_values
 
 def main():
-    cycle()  
+    cycle()
+    #listContributers()
 
 if __name__ == '__main__':
     main()

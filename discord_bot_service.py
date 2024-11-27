@@ -53,6 +53,7 @@ async def contributors(ctx):
 
 
 def main():
+    print(listContributers)
     bot.run(config['DISCORD_BOT_TOKEN'], log_handler=handler, log_level=logging.DEBUG)
 
 if __name__ == '__main__':
