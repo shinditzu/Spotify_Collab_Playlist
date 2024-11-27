@@ -35,7 +35,7 @@ def cycle():
     ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
     ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
     playlist_name = ep_playlist['name'] # var for playlist name
-    #trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
+    #
     trackdata = [] 
     debug = 1
     home_dir=Path.home()
@@ -44,7 +44,7 @@ def cycle():
     #output_dir=home_dir / "spotify_cycle" / "outputs"
     output_dir=os.path.join(Path.home(), app_dir, "outputs")
     discord_bot=discord_announce_v2.DiscordBot()
-
+    print(type(ep_playlist))
 
     # File creation operations go here
     try:
@@ -58,6 +58,7 @@ def cycle():
     print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
     #discord_bot.send(1309330887888080947, 10*"YEET!\n")
 
+    #TODO change json_to_csv_fields name to LIST
     # TODO handle choosing interesting fields better.
     #Loop through all tracks in the playlist, write interesting fields to csv
     for track in ep_playlist["tracks"]["items"]:
@@ -68,18 +69,29 @@ def cycle():
                             track["added_at"],
                             track["track"]["id"],
                             ]
-        trackdata.append(json_to_csv_fields)
-        track_id_month.append(json_to_csv_fields[-1])
+        # print("test")
+        # print(json_to_csv_fields)
+        
+        trackdata.append(json_to_csv_fields) #append song entry data list to trackdata dictionary
+        track_id_month.append(json_to_csv_fields[-1]) #append song ID to track_id_month list for later use in moving songs between playlist
+        #song data to print to discord
         discord_song_output += track["added_by"]["id"] + " added " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
         #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
-    discord_bot.send(1309330887888080947, discord_song_output)
+    discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
 
     #CSV Writer
     #TODO - this needs work. It should add headers on init.
+    #pprint(type(trackdata))
+    trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
     with open(file_monthly_pl_csv.name, 'a',newline="") as f:
         writer = csv.writer(f, delimiter=',')
-        #writer.writerow(trackdata_headers)
+        write_headers = not os.path.exists(file_monthly_pl_csv.name) or os.path.getsize(file_monthly_pl_csv.name) == 0
+    
+    # Write headers if the file is new or empty
+        if write_headers:
+            writer.writerow(trackdata_headers)
+
         writer.writerows(trackdata)
 
     # Playlist manipulation logic starts here
