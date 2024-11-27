@@ -23,26 +23,28 @@ import discord_announce_v2
 # TODO build in args for debugging
 # TODO fix outputs path 
 
+date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
+ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+sfquery = SpotipyAuthJson()
+ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
+playlist_name = ep_playlist['name'] # var for playlist name
+app_dir=os.path.join(Path.home(), 'spotify_cycle')
+output_dir=os.path.join(Path.home(), app_dir, "outputs")
+file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
+track_id_month = [] # store track-IDs for this cycle
+debug = 1
+ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
 
 
 def cycle():
-    track_id_month = [] # store track-IDs for this cycle
     discord_song_output=""
-    sfquery = SpotipyAuthJson()
-    date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
-    ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
     #ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
-    ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
-    ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-    playlist_name = ep_playlist['name'] # var for playlist name
     #
     trackdata = [] 
-    debug = 1
+   
     home_dir=Path.home()
-    app_dir=os.path.join(Path.home(), 'spotify_cycle')
     script_dir=os.path.dirname(os.path.abspath(__file__))
     #output_dir=home_dir / "spotify_cycle" / "outputs"
-    output_dir=os.path.join(Path.home(), app_dir, "outputs")
     discord_bot=discord_announce_v2.DiscordBot()
     print(type(ep_playlist))
 
@@ -102,7 +104,10 @@ def cycle():
     #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
 
     # Playlist manipulation logic ends here
+    if debug == 1:
+        debugCycle()
 
+def debugCycle():
     #Adds a block of songs to the test monthly playlist for debugging.
     if debug == 1:
         ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
@@ -120,9 +125,11 @@ def cycle():
         time.sleep(5)
         sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
+def listContributers():
+    return file_monthly_pl_csv
 
 def main():
     cycle()  
 
 if __name__ == '__main__':
-    main()       
+    main()

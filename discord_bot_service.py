@@ -4,6 +4,7 @@ import os
 import json
 from pathlib import Path
 import logging
+from earp_cycle_monthly import listContributers
 
 
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
@@ -46,7 +47,7 @@ async def slash_hello(ctx):
 
 @bot.hybrid_command()
 async def contributors(ctx):
-    await()
+    await ctx.send(listContributers)
 
 
 
