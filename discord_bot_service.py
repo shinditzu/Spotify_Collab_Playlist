@@ -47,7 +47,7 @@ async def slash_hello(ctx):
 
 @bot.hybrid_command()
 async def contributors(ctx):
-    await ctx.send(listContributers)
+    await ctx.send(str(listContributers))
 
 
 
