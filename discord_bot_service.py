@@ -57,7 +57,7 @@ async def hello(interaction: discord.Interaction):
 
 @bot.tree.command(name="contributors", description="I'm Working on this")
 async def contributors(interaction: discord.Interaction):
-    await interaction.response.send_message(f"I'm working on this one, {interaction.user.name}!")
+    await interaction.response.send_message(listContributers())
 
 
 # @bot.hybrid_command()
