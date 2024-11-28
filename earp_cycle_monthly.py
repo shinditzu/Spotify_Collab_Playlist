@@ -121,6 +121,7 @@ def debugCycle():
                         '3uC4r2daXertBxxc8BpbbN', 
                         '21qnJAMtzC6S5SESuqQLEK', 
                         '4efAv86uRxR4yQBcb3Vczq',
+                        '6LQAeEZ1zbZUZ5ItQI5l1b',
                         ]
         time.sleep(5)
         sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
@@ -136,9 +137,12 @@ def listContributers():
     return (output)
 
 def addBubbleButt():
-    sfquery.sp.playlist_add_items(ep_playlist_id, '6LQAeEZ1zbZUZ5ItQI5l1b')
+    sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
     return('You did this to yourself')
 
+def addSong(song_id):
+    sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
+    return('You did this to yourself')
 
 # def listContributers():
 #     """
@@ -169,10 +173,8 @@ def addBubbleButt():
 #     return unique_values
 
 def main():
-    cycle()
-    #print(listContributers())
-    # for user in listContributers():
-    #     print(user + ' contributed ' + str(listContributers()[user]) + " songs")
+    addBubbleButt()
+    #cycle()
 
 if __name__ == '__main__':
     main()

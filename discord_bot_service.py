@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import logging
 from earp_cycle_monthly import listContributers
+from earp_cycle_monthly import addBubbleButt
+from earp_cycle_monthly import addSong
 
 
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
@@ -65,10 +67,12 @@ async def contributors(interaction: discord.Interaction):
 
 @bot.tree.command(name="penis", description="I call jack a penis")
 async def penis(interaction: discord.Interaction):
+    addSong('1jcSttQBrx05TkPgnB9vZl')
     await interaction.response.send_message(f"{interaction.user.name} called Jack a Penis!")
 
 @bot.tree.command(name="bubblebutt", description="I do bubblebutt")
 async def bubblebutt(interaction: discord.Interaction):
+    addBubbleButt()
     await interaction.response.send_message(f"{interaction.user.name} did a bubblebutt")
 # @bot.hybrid_command()
 # async def contributors(ctx):
