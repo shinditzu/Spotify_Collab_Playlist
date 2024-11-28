@@ -60,7 +60,7 @@ async def contributors(interaction: discord.Interaction):
     await interaction.response.send_message(listContributers())
 
 @bot.tree.command(name="penis", description="I call jack a penis")
-async def hello(interaction: discord.Interaction):
+async def penis(interaction: discord.Interaction):
     await interaction.response.send_message(f"{interaction.user.name} called Jack a Penis!")
 # @bot.hybrid_command()
 # async def contributors(ctx):
