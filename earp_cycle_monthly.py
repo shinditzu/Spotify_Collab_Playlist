@@ -72,14 +72,14 @@ def cycle():
                             track["track"]["id"],
                             ]
         # print("test")
-        # print(json_to_csv_fields)
+        #print(json_to_csv_fields)
         
         trackdata.append(json_to_csv_fields) #append song entry data list to trackdata dictionary
         track_id_month.append(json_to_csv_fields[-1]) #append song ID to track_id_month list for later use in moving songs between playlist
         #song data to print to discord
         discord_song_output += track["added_by"]["id"] + " added " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
         #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
-
+    print(discord_song_output)
     discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
 
     #CSV Writer
@@ -173,7 +173,6 @@ def addSong(song_id):
 #     return unique_values
 
 def main():
-    #addBubbleButt()
     cycle()
 
 if __name__ == '__main__':
