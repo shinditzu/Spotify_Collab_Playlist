@@ -59,7 +59,9 @@ async def hello(interaction: discord.Interaction):
 async def contributors(interaction: discord.Interaction):
     await interaction.response.send_message(listContributers())
 
-
+@bot.tree.command(name="penis", description="I call jack a penis")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{interaction.user.name} called Jack a Penis!")
 # @bot.hybrid_command()
 # async def contributors(ctx):
 #     await ctx.send(listContributers())
@@ -68,7 +70,7 @@ async def contributors(interaction: discord.Interaction):
 
 
 def main():
-    print(listContributers)
+    #print(listContributers)
     bot.run(config['DISCORD_BOT_TOKEN'], log_handler=handler, log_level=logging.DEBUG)
 
 if __name__ == '__main__':
