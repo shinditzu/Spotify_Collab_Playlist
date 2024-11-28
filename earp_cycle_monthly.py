@@ -173,8 +173,8 @@ def addSong(song_id):
 #     return unique_values
 
 def main():
-    addBubbleButt()
-    #cycle()
+    #addBubbleButt()
+    cycle()
 
 if __name__ == '__main__':
     main()
