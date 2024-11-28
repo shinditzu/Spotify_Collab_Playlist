@@ -125,40 +125,49 @@ def debugCycle():
         time.sleep(5)
         sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
-def listContributorsTest():
-    return ("IM WORKING ON IT")
-
 def listContributers():
-    """
-    Parses a CSV file and returns unique values for the specified column.
+    userSongCount = {}
+    output = ''
+    for track in ep_playlist["tracks"]["items"]:
+        userSongCount.setdefault(track["added_by"]["id"],0)
+        userSongCount[track["added_by"]["id"]] += 1
+    for user in userSongCount:
+        output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
+    return (output)
+
+# def listContributers():
+#     """
+#     Parses a CSV file and returns unique values for the specified column.
         
-    Returns:
-        set: A set of unique values from the specified column.
-    """
-    unique_values = set()
+#     Returns:
+#         set: A set of unique values from the specified column.
+#     """
+#     unique_values = set()
     
-    try:
-        with open(file_monthly_pl_csv.name, mode='r', newline='', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
+#     try:
+#         with open(file_monthly_pl_csv.name, mode='r', newline='', encoding='utf-8') as file:
+#             reader = csv.DictReader(file)
             
-            if "Added By" not in reader.fieldnames:
-                raise ValueError(f"Column 'Added By' does not exist in the CSV file.")
+#             if "Added By" not in reader.fieldnames:
+#                 raise ValueError(f"Column 'Added By' does not exist in the CSV file.")
             
-            for row in reader:
-                unique_values.add(row['Added By'])
+#             for row in reader:
+#                 unique_values.add(row['Added By'])
     
-    except FileNotFoundError:
-        print(f"Error: File '{file_monthly_pl_csv}' not found.")
-    except ValueError as e:
-        print(e)
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+#     except FileNotFoundError:
+#         print(f"Error: File '{file_monthly_pl_csv}' not found.")
+#     except ValueError as e:
+#         print(e)
+#     except Exception as e:
+#         print(f"An unexpected error occurred: {e}")
     
-    return unique_values
+#     return unique_values
 
 def main():
     cycle()
-    #listContributers()
+    #print(listContributers())
+    # for user in listContributers():
+    #     print(user + ' contributed ' + str(listContributers()[user]) + " songs")
 
 if __name__ == '__main__':
     main()
