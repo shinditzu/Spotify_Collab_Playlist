@@ -41,13 +41,28 @@ async def on_ready():
 async def hello(ctx):
     await ctx.send(f"Hello, {ctx.author.mention}! 👋")
 
-@bot.hybrid_command()
-async def slash_hello(ctx):
-    await ctx.send(f"Hello, {ctx.author.mention}! 👋")
+@bot.command()
+async def sync(ctx):
+    try:
+        # Sync the commands with Discord
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s).")
+    except Exception as e:
+        print(f"Error syncing commands: {e}")
 
-@bot.hybrid_command()
-async def contributors(ctx):
-    await ctx.send(listContributers())
+#Slash Commands
+@bot.tree.command(name="hello", description="I say hello")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Hello, {interaction.user.name}!")
+
+@bot.tree.command(name="contributors", description="I'm Working on this")
+async def contributors(interaction: discord.Interaction):
+    await interaction.response.send_message(f"I'm working on this one, {interaction.user.name}!")
+
+
+# @bot.hybrid_command()
+# async def contributors(ctx):
+#     await ctx.send(listContributers())
 
 
 
