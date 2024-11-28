@@ -135,6 +135,11 @@ def listContributers():
         output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
     return (output)
 
+def addBubbleButt():
+    sfquery.sp.playlist_add_items(ep_playlist_id, '6LQAeEZ1zbZUZ5ItQI5l1b')
+    return('You did this to yourself')
+
+
 # def listContributers():
 #     """
 #     Parses a CSV file and returns unique values for the specified column.

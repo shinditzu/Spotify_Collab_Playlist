@@ -42,6 +42,10 @@ async def hello(ctx):
     await ctx.send(f"Hello, {ctx.author.mention}! 👋")
 
 @bot.command()
+async def bubblebutt(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{interaction.user.name} did a bubblebutt")
+
+@bot.command()
 async def sync(ctx):
     try:
         # Sync the commands with Discord
@@ -62,6 +66,10 @@ async def contributors(interaction: discord.Interaction):
 @bot.tree.command(name="penis", description="I call jack a penis")
 async def penis(interaction: discord.Interaction):
     await interaction.response.send_message(f"{interaction.user.name} called Jack a Penis!")
+
+@bot.tree.command(name="bubblebutt", description="I do bubblebutt")
+async def bubblebutt(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{interaction.user.name} did a bubblebutt")
 # @bot.hybrid_command()
 # async def contributors(ctx):
 #     await ctx.send(listContributers())
