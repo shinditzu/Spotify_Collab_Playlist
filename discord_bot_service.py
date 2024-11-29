@@ -63,7 +63,8 @@ async def hello(interaction: discord.Interaction):
 
 @bot.tree.command(name="contributors", description="I'm Working on this")
 async def contributors(interaction: discord.Interaction):
-    await interaction.response.send_message(listContributers())
+    message = listContributers()
+    await interaction.response.send_message(message)
 
 @bot.tree.command(name="penis", description="I call jack a penis")
 async def penis(interaction: discord.Interaction):
