@@ -3,6 +3,7 @@
 # simple script to clear copy interesting fields of a collaborative playlist to CSV, clear that playlist, then
 # copy all songs to a compliation playist.
 
+
 from spotipy.oauth2 import SpotifyOAuth
 from pprint import pprint
 import json
@@ -15,30 +16,29 @@ import os
 import time
 import discord_announce_v2
 
-#print(os.environ.get('SPOTIPY_CLIENT_ID'))
-#print(os.environ.get('SPOTIPY_CLIENT_SECRET'))
-#TODO turn this in to a function maybe and pass playlists as args? 
+# TODO turn this in to a function maybe and pass playlists as args? 
 # TODO handle yearly compilation playlist cycling
 # TODO fix output folder permission on ubuntu
 # TODO build in args for debugging
 # TODO fix outputs path 
 
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
-ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
 sfquery = SpotipyAuthJson()
-ep_playlist = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-playlist_name = ep_playlist['name'] # var for playlist name
+ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+#ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
+ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
+ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
+playlist_name = ep_playlist_month['name'] # var for playlist name
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
 file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
 track_id_month = [] # store track-IDs for this cycle
-debug = 1
-ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
+debug = 0
+
 
 
 def cycle():
     discord_song_output=""
-    #ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
     #
     trackdata = [] 
    
@@ -46,7 +46,7 @@ def cycle():
     script_dir=os.path.dirname(os.path.abspath(__file__))
     #output_dir=home_dir / "spotify_cycle" / "outputs"
     discord_bot=discord_announce_v2.DiscordBot()
-    print(type(ep_playlist))
+    print(type(ep_playlist_month))
 
     # File creation operations go here
     try:
@@ -57,13 +57,13 @@ def cycle():
 
     file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
     file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
-    print(json.dumps(ep_playlist, indent=4) ,file=file_monthly_pl_json) #
+    print(json.dumps(ep_playlist_month, indent=4) ,file=file_monthly_pl_json) #
     #discord_bot.send(1309330887888080947, 10*"YEET!\n")
 
     #TODO change json_to_csv_fields name to LIST
     # TODO handle choosing interesting fields better.
     #Loop through all tracks in the playlist, write interesting fields to csv
-    for track in ep_playlist["tracks"]["items"]:
+    for track in ep_playlist_month["tracks"]["items"]:
         json_to_csv_fields = [track["track"]["name"],
                             track["track"]["album"]["name"],
                             track["track"]["album"]["artists"][0]["name"],
@@ -129,7 +129,7 @@ def debugCycle():
 def listContributers():
     userSongCount = {}
     output = ''
-    for track in ep_playlist["tracks"]["items"]:
+    for track in ep_playlist_month["tracks"]["items"]:
         userSongCount.setdefault(track["added_by"]["id"],0)
         userSongCount[track["added_by"]["id"]] += 1
     for user in userSongCount:
@@ -174,6 +174,7 @@ def addSong(song_id):
 
 def main():
     cycle()
+    #print(listContributers())
 
 if __name__ == '__main__':
     main()
