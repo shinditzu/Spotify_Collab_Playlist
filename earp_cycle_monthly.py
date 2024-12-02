@@ -127,6 +127,7 @@ def debugCycle():
         sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
 def listContributers():
+    ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
     userSongCount = {}
     output = ''
     for track in ep_playlist_month["tracks"]["items"]:
@@ -174,7 +175,6 @@ def addSong(song_id):
 
 def main():
     cycle()
-    #print(listContributers())
 
 if __name__ == '__main__':
     main()
