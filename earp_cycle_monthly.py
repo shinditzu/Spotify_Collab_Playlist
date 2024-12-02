@@ -171,7 +171,7 @@ def listContributers():
 
 
 def main():
-    #cycle()
+    cycle()
     #print(usernameFixer('Alex'))
     #print(listContributers())
 
