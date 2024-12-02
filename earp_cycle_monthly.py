@@ -16,11 +16,8 @@ import os
 import time
 import discord_announce_v2
 
-# TODO turn this in to a function maybe and pass playlists as args? 
 # TODO handle yearly compilation playlist cycling
-# TODO fix output folder permission on ubuntu
 # TODO build in args for debugging
-# TODO fix outputs path 
 
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
 sfquery = SpotipyAuthJson()
@@ -34,7 +31,6 @@ output_dir=os.path.join(Path.home(), app_dir, "outputs")
 file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
 track_id_month = [] # store track-IDs for this cycle
 debug = 0
-
 
 
 def cycle():
@@ -126,17 +122,6 @@ def debugCycle():
         time.sleep(5)
         sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
-def listContributers():
-    ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-    userSongCount = {}
-    output = ''
-    for track in ep_playlist_month["tracks"]["items"]:
-        userSongCount.setdefault(track["added_by"]["id"],0)
-        userSongCount[track["added_by"]["id"]] += 1
-    for user in userSongCount:
-        output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
-    return (output)
-
 def addBubbleButt():
     sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
     return('You did this to yourself')
@@ -145,36 +130,56 @@ def addSong(song_id):
     sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
     return('You did this to yourself')
 
-# def listContributers():
-#     """
-#     Parses a CSV file and returns unique values for the specified column.
+def listContributers():
+    ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
+    userSongCount = {}
+    output = ''
+    un_length=0
+    for track in ep_playlist_month["tracks"]["items"]:
+        userSongCount.setdefault(track["added_by"]["id"],0)
+        userSongCount[track["added_by"]["id"]] += 1
+
+    #find value of longest username for formatting purposes
+    for user in userSongCount: 
+        if len(user) > un_length:
+            un_length = len(user) + 1
+    
+    #print(userSongCount)
+    output= 'User'.center(un_length) + "Count" +'\n'
+
+    for user in userSongCount:
+        print(len(user))
+        print(user)
+        output += user + '-' * (un_length - len(user)) + str(userSongCount[user]) + '\n'
         
-#     Returns:
-#         set: A set of unique values from the specified column.
-#     """
-#     unique_values = set()
-    
-#     try:
-#         with open(file_monthly_pl_csv.name, mode='r', newline='', encoding='utf-8') as file:
-#             reader = csv.DictReader(file)
-            
-#             if "Added By" not in reader.fieldnames:
-#                 raise ValueError(f"Column 'Added By' does not exist in the CSV file.")
-            
-#             for row in reader:
-#                 unique_values.add(row['Added By'])
-    
-#     except FileNotFoundError:
-#         print(f"Error: File '{file_monthly_pl_csv}' not found.")
-#     except ValueError as e:
-#         print(e)
-#     except Exception as e:
-#         print(f"An unexpected error occurred: {e}")
-    
-#     return unique_values
+    #original output style
+    # for user in userSongCount:
+    #     output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
+    return (output)
+
+# def device_role_map(device_role_str):
+#     device_type_mapper = [  ('ACI Leaf','SWC'),
+#                             ('Switch',"SWC"),
+#                             ('VPN Firewall',"FWL"),
+#                             ('Console Server',"CON"),
+#                             ('ESX Host',"SRV"),
+#                             ('Server',"SRV"),
+#                             ('Security Appliance',"FWL"),
+#                             ('Patch Panel',"PNL"),
+#                             ] 
+#     for i in device_type_mapper:
+#     #print(i)
+#         if i[0] in device_role_str:
+#             #print(i[0]+device_a_role)
+#             device_role_str = i[1]
+#             #print(device_a_role)
+#             #print('IFCONVERTED')
+#     return(device_role_str)
 
 def main():
-    cycle()
+    #cycle()
+    print(listContributers())
+
 
 if __name__ == '__main__':
     main()
