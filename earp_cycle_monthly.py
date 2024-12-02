@@ -156,12 +156,12 @@ def listContributers():
             un_length = len(user) + 1
     
     #print(userSongCount)
-    output= 'User'.center(un_length) + "Count" +'\n'
+    # output= 'User'.center(un_length) + "Count" +'\n'
 
-    # for user in userSongCount:
-    #     # print(len(user)) 
-    #     # print(user)
-    #     output += user + '-' * (un_length - len(user)) + str(userSongCount[user]) + '\n'
+    # # for user in userSongCount:
+    # #     # print(len(user)) 
+    # #     # print(user)
+    # #     output += user + '-' * (un_length - len(user)) + str(userSongCount[user]) + '\n'
         
     #original output style
     for user in userSongCount:
@@ -172,8 +172,8 @@ def listContributers():
 
 def main():
     #cycle()
-    print(usernameFixer('Alex'))
-    print(listContributers())
+    #print(usernameFixer('Alex'))
+    #print(listContributers())
 
 
 if __name__ == '__main__':
