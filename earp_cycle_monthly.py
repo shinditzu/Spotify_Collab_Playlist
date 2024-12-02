@@ -130,14 +130,25 @@ def addSong(song_id):
     sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
     return('You did this to yourself')
 
+#fuction accepts username string as parameter and converts it it matches entry in broken usernames list
+def usernameFixer(username):
+    brokenUsernames = [('s9o1hnuxfsrc8orhu8mdkfg1a','Adam'),
+                            ] 
+    for i in brokenUsernames:
+    #print(i)
+        if i[0] in username:
+            username = i[1]
+    return(username)
+
 def listContributers():
     ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
     userSongCount = {}
     output = ''
     un_length=0
     for track in ep_playlist_month["tracks"]["items"]:
-        userSongCount.setdefault(track["added_by"]["id"],0)
-        userSongCount[track["added_by"]["id"]] += 1
+        # userSongCount.setdefault(track["added_by"]["id"],0)
+        userSongCount.setdefault(usernameFixer(track["added_by"]["id"]),0)
+        userSongCount[usernameFixer(track["added_by"]["id"])] += 1
 
     #find value of longest username for formatting purposes
     for user in userSongCount: 
@@ -147,37 +158,21 @@ def listContributers():
     #print(userSongCount)
     output= 'User'.center(un_length) + "Count" +'\n'
 
-    for user in userSongCount:
-        print(len(user))
-        print(user)
-        output += user + '-' * (un_length - len(user)) + str(userSongCount[user]) + '\n'
+    # for user in userSongCount:
+    #     # print(len(user)) 
+    #     # print(user)
+    #     output += user + '-' * (un_length - len(user)) + str(userSongCount[user]) + '\n'
         
     #original output style
-    # for user in userSongCount:
-    #     output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
+    for user in userSongCount:
+        output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
     return (output)
 
-# def device_role_map(device_role_str):
-#     device_type_mapper = [  ('ACI Leaf','SWC'),
-#                             ('Switch',"SWC"),
-#                             ('VPN Firewall',"FWL"),
-#                             ('Console Server',"CON"),
-#                             ('ESX Host',"SRV"),
-#                             ('Server',"SRV"),
-#                             ('Security Appliance',"FWL"),
-#                             ('Patch Panel',"PNL"),
-#                             ] 
-#     for i in device_type_mapper:
-#     #print(i)
-#         if i[0] in device_role_str:
-#             #print(i[0]+device_a_role)
-#             device_role_str = i[1]
-#             #print(device_a_role)
-#             #print('IFCONVERTED')
-#     return(device_role_str)
+
 
 def main():
     #cycle()
+    print(usernameFixer('Alex'))
     print(listContributers())
 
 
