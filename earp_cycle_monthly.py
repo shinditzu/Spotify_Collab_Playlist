@@ -35,7 +35,7 @@ debug = 0
 
 
 def cycle():
-    discord_song_output=""
+    discord_song_output="EMPTY"
     #
     trackdata = [] 
    
