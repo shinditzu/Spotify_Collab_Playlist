@@ -136,6 +136,7 @@ def addSong(song_id):
 #fuction accepts username string as parameter and converts it it matches entry in broken usernames list
 def usernameFixer(username):
     brokenUsernames = [('s9o1hnuxfsrc8orhu8mdkfg1a','Adam'),
+                       ('71fg5vzz2r72fuaevr48h6usr','Tré'),                       
                             ] 
     for i in brokenUsernames:
     #print(i)
