@@ -107,7 +107,7 @@ def cycle():
 def debugCycle():
     #Adds a block of songs to the test monthly playlist for debugging.
     if debug == 1:
-        #ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+        ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
         track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
                         '0C9u106kRYCqYSP3KDdk3v', 
                         '7jBAskQhyfjmbYC0o3pXdW', 
