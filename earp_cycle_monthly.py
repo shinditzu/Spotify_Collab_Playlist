@@ -140,6 +140,7 @@ def usernameFixer(username):
             username = i[1]
     return(username)
 
+#TODO account for singular vs plural
 def listContributers():
     ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
     userSongCount = {}
