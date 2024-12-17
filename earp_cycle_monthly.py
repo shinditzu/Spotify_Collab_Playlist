@@ -31,7 +31,7 @@ app_dir=os.path.join(Path.home(), 'spotify_cycle')
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
 file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
 track_id_month = [] # store track-IDs for this cycle
-debug = 1
+debug = 0
 
 
 def cycle():
@@ -78,7 +78,8 @@ def cycle():
         discord_song_output += track["added_by"]["id"] + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
         #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
     print(discord_song_output)
-    discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
+    # discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
+    discord_bot.send(780292448298467333, discord_song_output)#print song data to discord.
 
     #CSV Writer
     #TODO - this needs work. It should add headers on init.
