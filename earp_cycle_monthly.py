@@ -21,10 +21,10 @@ import discord_announce_v2
 
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
 sfquery = SpotipyAuthJson()
-#ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"(Test)
+ep_playlist_id_debug = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"(Test)
 ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
 ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-#ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"(Test)
+ep_playlist_year_debug = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"(Test)
 ep_playlist_year = '1WLV70aRmdxZbGXO9EG4oU' #spotify yearly playlist "EP_2025Collective"(Live)
 playlist_name = ep_playlist_month['name'] # var for playlist name
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
@@ -107,7 +107,7 @@ def cycle():
 def debugCycle():
     #Adds a block of songs to the test monthly playlist for debugging.
     if debug == 1:
-        ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
+        #ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
         track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
                         '0C9u106kRYCqYSP3KDdk3v', 
                         '7jBAskQhyfjmbYC0o3pXdW', 
@@ -121,7 +121,7 @@ def debugCycle():
                         '6LQAeEZ1zbZUZ5ItQI5l1b',
                         ]
         time.sleep(5)
-        sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
+        sfquery.sp.playlist_add_items(ep_playlist_id_debug, track_id_month)
 
 def addBubbleButt():
     sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
