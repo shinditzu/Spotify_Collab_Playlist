@@ -21,10 +21,11 @@ import discord_announce_v2
 
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
 sfquery = SpotipyAuthJson()
-ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
-#ep_playlist_id = '4j18cLu34moapVdi0cJkcI+++++' #spotify playist ID "Ear Porn!(PROPER)"
+#ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"(Test)
+ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
 ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"
+#ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"(Test)
+ep_playlist_year = '1WLV70aRmdxZbGXO9EG4oU' #spotify yearly playlist "EP_2025Collective"(Live)
 playlist_name = ep_playlist_month['name'] # var for playlist name
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
