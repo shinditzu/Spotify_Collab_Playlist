@@ -121,7 +121,7 @@ def debugCycle():
                         '6LQAeEZ1zbZUZ5ItQI5l1b',
                         ]
         time.sleep(5)
-        sfquery.sp.playlist_add_items(ep_playlist_id_debug, track_id_month)
+        sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
 def addBubbleButt():
     sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
