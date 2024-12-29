@@ -20,6 +20,7 @@ import discord_announce_v2
 # TODO build in args for debugging
 
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
+year = str(datetime.datetime.now().strftime('%Y'))
 sfquery = SpotipyAuthJson()
 ep_playlist_id_debug = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"(Test)
 ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
@@ -29,7 +30,7 @@ ep_playlist_year = '1WLV70aRmdxZbGXO9EG4oU' #spotify yearly playlist "EP_2025Col
 playlist_name = ep_playlist_month['name'] # var for playlist name
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
-file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
+file_yearly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
 track_id_month = [] # store track-IDs for this cycle
 debug = 0
 
@@ -53,7 +54,7 @@ def cycle():
         print('Output Folder already exists.')
 
     file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
-    file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
+    file_yearly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + year + '.csv'), 'a')
     print(json.dumps(ep_playlist_month, indent=4) ,file=file_monthly_pl_json) #
     #discord_bot.send(1309330887888080947, 10*"YEET!\n")
 
@@ -75,7 +76,8 @@ def cycle():
         track_id_month.append(json_to_csv_fields[-1]) #append song ID to track_id_month list for later use in moving songs between playlist
         #song data to print to discord
         # discord_song_output += track["added_by"]["id"] + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
-        discord_song_output += track["added_by"]["id"] + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
+        # discord_song_output += track["added_by"]["id"] + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
+        discord_song_output += usernameFixer(track["added_by"]["id"]) + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
         #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
     print(discord_song_output)
     # discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
@@ -85,9 +87,9 @@ def cycle():
     #TODO - this needs work. It should add headers on init.
     #pprint(type(trackdata))
     trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
-    with open(file_monthly_pl_csv.name, 'a',newline="") as f:
+    with open(file_yearly_pl_csv.name, 'a',newline="") as f:
         writer = csv.writer(f, delimiter=',')
-        write_headers = not os.path.exists(file_monthly_pl_csv.name) or os.path.getsize(file_monthly_pl_csv.name) == 0
+        write_headers = not os.path.exists(file_yearly_pl_csv.name) or os.path.getsize(file_yearly_pl_csv.name) == 0
     
     # Write headers if the file is new or empty
         if write_headers:
