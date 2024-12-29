@@ -89,6 +89,19 @@ def main():
     #pprint(test.sp.track("2S4CfxZG29GZWwDeMtBq2R"))
     pprint(test.sp.current_user())
 
+    # #Test Starts here
+    # ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
+    # sfquery = SpotipyAuthJson()
+    # ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
+    # for track in ep_playlist_month["tracks"]["items"]:
+    #     json_to_csv_fields = [track["track"]["name"],
+    #                         track["track"]["album"]["name"],
+    #                         track["track"]["album"]["artists"][0]["name"],
+    #                         track["added_by"]["id"],
+    #                         track["added_at"],
+    #                         track["track"]["id"],
+    #                         ]
+    # print(json_to_csv_fields)
 
 if __name__ == '__main__':
     main()       
