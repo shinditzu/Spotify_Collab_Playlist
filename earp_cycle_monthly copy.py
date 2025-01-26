@@ -80,11 +80,10 @@ def cycle():
         discord_song_output += usernameFixer(track["added_by"]["id"]) + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
         #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
     print(discord_song_output)
-    # discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
-    discord_bot.send(780292448298467333, discord_song_output)#print song data to discord.
+    # # discord_bot.send(1309330887888080947, discord_song_output)#print song data to debug discord.
+    # discord_bot.send(780292448298467333, discord_song_output)#print song data to real discord.
 
     #CSV Writer
-    #TODO - this needs work. It should add headers on init.
     #pprint(type(trackdata))
     trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
     with open(file_yearly_pl_csv.name, 'a',newline="") as f:
@@ -100,6 +99,7 @@ def cycle():
     # Playlist manipulation logic starts here
     # clear contents of this month's track IDs from the monthly playlist ##################
     # sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)  <UNCOMMENT ME WHEN DONE
+    
     # write contents of this months track IDs to the yearly playlist
     sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
     #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
@@ -107,6 +107,8 @@ def cycle():
     # Playlist manipulation logic ends here
     if debug == 1:
         debugCycle()
+
+    return discord_song_output
 
 def debugCycle():
     #Adds a block of songs to the test monthly playlist for debugging.
