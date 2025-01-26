@@ -70,18 +70,16 @@ def cycle():
                             track["track"]["id"],
                             ]
         # print("test")
-        #print(json_to_csv_fields)
+        # print(json_to_csv_fields)
         
         trackdata.append(json_to_csv_fields) #append song entry data list to trackdata dictionary
         track_id_month.append(json_to_csv_fields[-1]) #append song ID to track_id_month list for later use in moving songs between playlist
         #song data to print to discord
         # discord_song_output += track["added_by"]["id"] + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"] + " at " + track["added_at"] + "\n"
         # discord_song_output += track["added_by"]["id"] + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
-        discord_song_output += usernameFixer(track["added_by"]["id"]) + " - " +track["track"]["name"] + " by " + track["track"]["album"]["artists"][0]["name"]+"\n"
+        discord_song_output += usernameFixer(track["added_by"]["id"]) + " - " +track["track"]["name"] + " by " + str(track["track"]["album"]["artists"][0]["name"])+"\n"
         #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
-    print(discord_song_output)
-    # discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord.
-    discord_bot.send(780292448298467333, discord_song_output)#print song data to discord.
+    
 
     #CSV Writer
     #TODO - this needs work. It should add headers on init.
@@ -107,6 +105,18 @@ def cycle():
     # Playlist manipulation logic ends here
     if debug == 1:
         debugCycle()
+
+    # print(discord_song_output)
+
+    print(type(split_multiline_string(discord_song_output)))
+    for part in split_multiline_string(discord_song_output):
+        print(part)
+        discord_bot.send(1309330887888080947, part)
+        
+    # discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord Debug.
+    #discord_bot.send(780292448298467333, discord_song_output)#print song data to discord.
+
+    return(discord_song_output)
 
 def debugCycle():
     #Adds a block of songs to the test monthly playlist for debugging.
@@ -145,6 +155,46 @@ def usernameFixer(username):
         if i[0] in username:
             username = i[1]
     return(username)
+
+def split_multiline_string(input_string, max_length=2000):
+    """
+    Splits a multiline string into parts, each less than max_length characters.
+    Ensures splits occur at line breaks for better readability.
+    
+    Args:
+        input_string (str): The input multiline string to split.
+        max_length (int): The maximum length of each part (default: 2000).
+    
+    Returns:
+        list: A list of string parts, each less than max_length characters.
+    """
+    if len(input_string) <= max_length:
+        return [input_string]
+    
+    parts = []
+    current_part = []
+
+    # Track the current length of the part being built
+    current_length = 0
+
+    for line in input_string.splitlines(keepends=True):
+        line_length = len(line)
+
+        if current_length + line_length > max_length:
+            # If adding this line exceeds max_length, save the current part
+            parts.append(''.join(current_part))
+            current_part = [line]
+            current_length = line_length
+        else:
+            # Otherwise, add the line to the current part
+            current_part.append(line)
+            current_length += line_length
+
+    # Add the last part if it contains any content
+    if current_part:
+        parts.append(''.join(current_part))
+    
+    return parts
 
 #TODO account for singular vs plural
 def listContributers():
