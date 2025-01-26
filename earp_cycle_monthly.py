@@ -97,7 +97,7 @@ def cycle():
 
     # Playlist manipulation logic starts here
     # clear contents of this month's track IDs from the monthly playlist ##################
-    # sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)  <UNCOMMENT ME WHEN DONE
+    sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month) 
     # write contents of this months track IDs to the yearly playlist
     sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
     #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
