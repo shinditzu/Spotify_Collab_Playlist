@@ -111,8 +111,9 @@ def cycle():
     print(type(split_multiline_string(discord_song_output)))
     for part in split_multiline_string(discord_song_output):
         print(part)
-        discord_bot.send(1309330887888080947, part)
-        
+        # discord_bot.send(1309330887888080947, part)#debug discord
+        discord_bot.send(780292448298467333, part)#real discord
+       
     # discord_bot.send(1309330887888080947, discord_song_output)#print song data to discord Debug.
     #discord_bot.send(780292448298467333, discord_song_output)#print song data to discord.
 
