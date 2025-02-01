@@ -61,14 +61,18 @@ def cycle():
     #TODO change json_to_csv_fields name to LIST
     # TODO handle choosing interesting fields better.
     #Loop through all tracks in the playlist, write interesting fields to csv
-    for track in ep_playlist_month["tracks"]["items"]:
-        json_to_csv_fields = [track["track"]["name"],
-                            track["track"]["album"]["name"],
-                            track["track"]["album"]["artists"][0]["name"],
-                            track["added_by"]["id"],
-                            track["added_at"],
-                            track["track"]["id"],
-                            ]
+    for track in ep_playlist_month.get("tracks", {}).get("items", []):
+        if track.get("track") is None:
+            print("Found a track with value None")
+            continue
+        else:
+            json_to_csv_fields = [track["track"]["name"],
+                                track["track"]["album"]["name"],
+                                track["track"]["album"]["artists"][0]["name"],
+                                track["added_by"]["id"],
+                                track["added_at"],
+                                track["track"]["id"],
+                                ]
         # print("test")
         # print(json_to_csv_fields)
         
