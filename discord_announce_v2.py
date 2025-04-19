@@ -28,22 +28,23 @@ class DiscordBot:
 
     async def send_message(self, channel_id, message):
         """
-        Send a message to a specific Discord channel.
-        :param channel_id: The ID of the channel to send the message to.
-        :param message: The message content to send.
+        Send a message to a specific Discord channel using a temporary client.
         """
-        @self.client.event
-        async def on_ready():
-            print(f"Logged in as {self.client.user}")
-            channel = self.client.get_channel(channel_id)
-            if channel is None:
-                print("Channel not found. Check the channel ID.")
-            else:
-                await channel.send(message)
-                print("Message sent!")
-            await self.client.close()
+        intents = discord.Intents.default()
 
-        await self.client.start(self.token)
+        class TempClient(discord.Client):
+            async def on_ready(self_):
+                print(f"Logged in as {self_.user}")
+                channel = self_.get_channel(channel_id)
+                if channel is None:
+                    print("Channel not found. Check the channel ID.")
+                else:
+                    await channel.send(message)
+                    print("Message sent!")
+                await self_.close()
+
+        async with TempClient(intents=intents) as client:
+            await client.start(self.token)
 
     def send(self, channel_id, message):
         """
@@ -54,9 +55,9 @@ class DiscordBot:
         asyncio.run(self.send_message(channel_id, message))
 
 def main():
-
+    
     client = DiscordBot()
-    client.send(1309330887888080947, 'FEED ME A BUBBLE BUTT')
+    client.send(1309330887888080947, "Feed Me a Bubble Butt")
     
 if __name__ == '__main__':
     main()       
