@@ -61,7 +61,7 @@ async def sync(ctx):
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(f"Hello, {interaction.user.name}!")
 
-@bot.tree.command(name="contributors", description="I'm Working on this")
+@bot.tree.command(name="contributors", description="I list who contributed songs")
 async def contributors(interaction: discord.Interaction):
     await interaction.response.send_message(listContributers())
 

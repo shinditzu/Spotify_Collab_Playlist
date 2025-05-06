@@ -159,6 +159,7 @@ def usernameFixer(username):
                        ('goodwi46','Aly'),
                        ('greenteakittens','Sarah'),
                        ('swbernstel','Doc'), 
+                       ('krmcneil86','Keri'), 
                        ('shinditzu','Alex'),                       
                         ] 
     for i in brokenUsernames:
