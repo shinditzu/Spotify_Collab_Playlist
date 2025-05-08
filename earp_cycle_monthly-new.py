@@ -26,9 +26,9 @@ if debug == 1:
     discord_bot_output_channel = 1309330887888080947 #discord (Test)
 else:
     print("We're Live")
-    #ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
-    #ep_playlist_year = '1WLV70aRmdxZbGXO9EG4oU' #spotify yearly playlist "EP_2025Collective"(Live)
-    #discord_bot_output_channel = 780292448298467333 #discord (Live)
+    ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
+    ep_playlist_year = '1WLV70aRmdxZbGXO9EG4oU' #spotify yearly playlist "EP_2025Collective"(Live)
+    discord_bot_output_channel = 780292448298467333 #discord (Live)
 
 sfquery = SpotipyAuthJson()
 date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
@@ -66,7 +66,9 @@ def cycle():
     trackdata = [] # Init trackdata list
     
     file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
+    file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
     file_yearly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + year + '.csv'), 'a')
+
     print(json.dumps(ep_playlist_month, indent=4) ,file=file_monthly_pl_json) #
     #discord_bot.send(1309330887888080947, 10*"YEET!\n")
 
@@ -90,19 +92,24 @@ def cycle():
         track_id_month.append(json_to_csv_fields[-1]) #append song ID to track_id_month list for later use in moving songs between playlist
         #song data to print to discord
         discord_song_output += usernameFixer(track["added_by"]["id"]) + " - " +track["track"]["name"] + " by " + str(track["track"]["album"]["artists"][0]["name"])+"\n"
-        #print(f"{str(track["added_by"]["id"])} added {str(track["track"]["name"])} by {str(track["track"]["album"]["artists"][0]["name"])} at {str(track["added_at"])}")
     
     #CSV Writer
-    trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
-    with open(file_yearly_pl_csv.name, 'a',newline="") as f:
-        writer = csv.writer(f, delimiter=',')
-        write_headers = not os.path.exists(file_yearly_pl_csv.name) or os.path.getsize(file_yearly_pl_csv.name) == 0
-    
-    # Write headers if the file is new or empty
-        if write_headers:
-            writer.writerow(trackdata_headers)
+    def trackwriter(filename):
+        trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
+        with open(filename.name, 'a',newline="") as f:
+            writer = csv.writer(f, delimiter=',')
+            write_headers = not os.path.exists(filename.name) or os.path.getsize(filename.name) == 0
+        
+        # Write headers if the file is new or empty
+            if write_headers:
+                print("Writing header to new file")
+                writer.writerow(trackdata_headers)
 
-        writer.writerows(trackdata)
+            print("Writing trackdata to " + str(filename)) 
+            writer.writerows(trackdata)
+    
+    trackwriter(file_yearly_pl_csv)
+    trackwriter(file_monthly_pl_csv)
 
     # Playlist manipulation logic starts here
     # Clear contents of this month's track IDs from the monthly playlist ##################
@@ -121,22 +128,21 @@ def cycle():
 
 def debugCycle():
     #Adds a block of songs to the test monthly playlist for debugging.
-    if debug == 1:
-        ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"
-        track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
-                        '0C9u106kRYCqYSP3KDdk3v', 
-                        '7jBAskQhyfjmbYC0o3pXdW', 
-                        '1Jg3XdrCOZ5rrirIOggdtW', 
-                        '6dU5RxthbuaN31bRbEDlNw', 
-                        '0ZK8TGOsngrstVPsnrHbK1', 
-                        '0iCrjwLMTjWsdOKdOAZ0FC', 
-                        '3uC4r2daXertBxxc8BpbbN', 
-                        '21qnJAMtzC6S5SESuqQLEK', 
-                        '4efAv86uRxR4yQBcb3Vczq',
-                        '6LQAeEZ1zbZUZ5ItQI5l1b',
-                        ]
-        time.sleep(5)
-        sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
+    print("Resetting debugging playlist")
+    track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
+                    '0C9u106kRYCqYSP3KDdk3v', 
+                    '7jBAskQhyfjmbYC0o3pXdW', 
+                    '1Jg3XdrCOZ5rrirIOggdtW', 
+                    '6dU5RxthbuaN31bRbEDlNw', 
+                    '0ZK8TGOsngrstVPsnrHbK1', 
+                    '0iCrjwLMTjWsdOKdOAZ0FC', 
+                    '3uC4r2daXertBxxc8BpbbN', 
+                    '21qnJAMtzC6S5SESuqQLEK', 
+                    '4efAv86uRxR4yQBcb3Vczq',
+                    '6LQAeEZ1zbZUZ5ItQI5l1b',
+                    ]
+    time.sleep(5)
+    sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
 def addBubbleButt():
     sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
