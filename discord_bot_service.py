@@ -8,7 +8,6 @@ from earp_cycle_monthly import listContributers
 from earp_cycle_monthly import addBubbleButt
 from earp_cycle_monthly import addSong
 
-
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
 config_file=os.path.join(app_dir, 'config.json')
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
@@ -77,8 +76,6 @@ async def bubblebutt(interaction: discord.Interaction):
 # @bot.hybrid_command()
 # async def contributors(ctx):
 #     await ctx.send(listContributers())
-
-
 
 
 def main():
