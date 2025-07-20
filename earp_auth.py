@@ -7,13 +7,16 @@ import os
 from pprint import pprint
 import json
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 script_dir=os.path.dirname(os.path.abspath(__file__))
 token_path=os.path.join(script_dir, 'token.txt')
 #home_dir=Path.home()
 #app_dir=home_dir / 'spotify_cycle'
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
-config_file=os.path.join(app_dir, 'config.json')
+# config_file=os.path.join(app_dir, 'config.json')
 default_config={
     "SPOTIPY_CLIENT_ID": "REPLACE_ME",
     "SPOTIPY_CLIENT_SECRET": "REPLACE_ME",
@@ -21,20 +24,20 @@ default_config={
     "DISCORD_BOT_TOKEN": "REPLACE_ME"
 }
 
-#Check if app user directory exists
-try:
-    os.makedirs(app_dir)
-except FileExistsError:
-    print('Folder already exists.')
+# #Check if app user directory exists
+# try:
+#     os.makedirs(app_dir)
+# except FileExistsError:
+#     print('Folder already exists.')
 
-# Check if the configuration file exists
-if not os.path.exists(config_file):
-    # Create a new configuration file with default values
-    with open(config_file, 'w') as file:
-        json.dump(default_config, file, indent=4)
-    print(f"Configuration file '{config_file}' created with default values.")
-else:
-    print(f"Configuration file '{config_file}' already exists.")
+# # Check if the configuration file exists
+# if not os.path.exists(config_file):
+#     # Create a new configuration file with default values
+#     with open(config_file, 'w') as file:
+#         json.dump(default_config, file, indent=4)
+#     print(f"Configuration file '{config_file}' created with default values.")
+# else:
+#     print(f"Configuration file '{config_file}' already exists.")
 
 
 class SpotipyAuth:
@@ -65,13 +68,11 @@ class SpotipyAuthJson:
         """
         instantiate spotipy with my auth parameters using JSON configuration parameters.
         """
-        with open(config_file) as f:
-            config = json.load(f)
 
         scope = 'user-read-private playlist-modify-public'
-        client_id = config['SPOTIPY_CLIENT_ID']
-        client_secret = config['SPOTIPY_CLIENT_SECRET']
-        redirect_uri = config['SPOTIPY_REDIRECT_URI']
+        client_id = os.getenv('SPOTIPY_CLIENT_ID')
+        client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+        redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
 
         self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, 
                                                client_secret=client_secret, 

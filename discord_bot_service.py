@@ -7,15 +7,17 @@ import logging
 from earp_cycle_monthly import listContributers
 from earp_cycle_monthly import addBubbleButt
 from earp_cycle_monthly import addSong
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app_dir=os.path.join(Path.home(), 'spotify_cycle')
-config_file=os.path.join(app_dir, 'config.json')
+# config_file=os.path.join(app_dir, 'config.json')
 output_dir=os.path.join(Path.home(), app_dir, "outputs")
 handler=logging.FileHandler(filename=os.path.join(output_dir,'discord.log'), encoding='utf-8', mode='w')
 
-
-with open(config_file) as f:
-    config = json.load(f)
+# with open(config_file) as f:
+#     config = json.load(f)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -77,10 +79,9 @@ async def bubblebutt(interaction: discord.Interaction):
 # async def contributors(ctx):
 #     await ctx.send(listContributers())
 
-
 def main():
     #print(listContributers)
-    bot.run(config['DISCORD_BOT_TOKEN'], log_handler=handler, log_level=logging.DEBUG)
+    bot.run(os.getenv('DISCORD_BOT_TOKEN'), log_handler=handler, log_level=logging.DEBUG)
 
 if __name__ == '__main__':
     main()     
