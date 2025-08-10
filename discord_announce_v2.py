@@ -4,22 +4,14 @@ from pathlib import Path
 import os
 import json
 import asyncio
+from dotenv import load_dotenv
+import os
 
-#home_dir=Path.home()
-#script_dir=os.path.dirname(os.path.abspath(__file__))
-#log_output_dir=home_dir / "spotify_cycle_outputs"
-#log_file = open(home_dir / "spotify_cycle_outputs" / "discordbot.log", "w")
-
-#handler = logging.FileHandler(filename=str(log_file), encoding='utf-8', mode='a')
-app_dir=os.path.join(Path.home(), 'spotify_cycle')
-config_file=os.path.join(app_dir, 'config.json')
-with open(config_file) as f:
-    config = json.load(f)
-
+load_dotenv()
 
 class DiscordBot:
     def __init__(self):
-        token=(config['DISCORD_BOT_TOKEN'])
+        token=(os.getenv('DISCORD_BOT_TOKEN'))
         """
         Initialize the Discord bot with the provided token.
         """
