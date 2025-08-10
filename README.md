@@ -1,7 +1,7 @@
 clone repo to user directory
   -  git clone https://github.com/shinditzu/Spotify_Collab_Playlist.git
 
-Set configuration values in config.json
+Set configuration values in .env
   -  SPOTIPY_CLIENT_ID
   -  SPOTIPY_CLIENT_SECRET
   -  SPOTIPY_REDIRECT_URI
