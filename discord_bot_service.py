@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app_dir=os.path.join(Path.home(), 'spotify_cycle')
+# app_dir=os.path.join(Path.home(), 'spotify_cycle')
 # config_file=os.path.join(app_dir, 'config.json')
-output_dir=os.path.join(Path.home(), app_dir, "outputs")
+output_dir="outputs"
 handler=logging.FileHandler(filename=os.path.join(output_dir,'discord.log'), encoding='utf-8', mode='w')
 
 # with open(config_file) as f:

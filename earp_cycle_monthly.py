@@ -3,156 +3,184 @@
 # simple script to clear copy interesting fields of a collaborative playlist to CSV, clear that playlist, then
 # copy all songs to a compliation playist.
 
-from spotipy.oauth2 import SpotifyOAuth
-from pprint import pprint
+import os
 import json
 import datetime
 import csv
-from earp_auth import SpotipyAuth
-from earp_auth import SpotipyAuthJson
 from pathlib import Path
-import os
 import time
+import dotenv
+from spotipy.oauth2 import SpotifyOAuth
+from pprint import pprint
+from earp_auth import SpotipyAuth, SpotipyAuthJson
 import discord_announce_v2
 
-# TODO handle yearly compilation playlist cycling
-# TODO build in args for debugging
-debug = 1
+dotenv.load_dotenv()
 
-if debug == 1:
-    print("We're Debugging")
-    ep_playlist_id = '2opAaOGzhp7txFUel5Qpic' #spotify playist ID "EP_Test"(Test)
-    ep_playlist_year = '0ctAvuxTyNOrC3BRjAfOqE' #spotify yearly playlist "EP_Year"(Test)
-    discord_bot_output_channel = 1309330887888080947 #discord (Test)
-else:
-    print("We're Live")
-    ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
-    ep_playlist_year = '1WLV70aRmdxZbGXO9EG4oU' #spotify yearly playlist "EP_2025Collective"(Live)
-    discord_bot_output_channel = 780292448298467333 #discord (Live)
+def get_environment_config(use_debug=True):
+    """
+    Get environment configuration based on debug/live setting.
+    
+    Args:
+        use_debug (bool): If True, use debug environment. If False, use live environment.
+    
+    Returns:
+        dict: Configuration dictionary with playlist IDs and Discord channel
+    """
+    if use_debug:
+        print("Using Debug Environment")
+        return {
+            "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
+            "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
+            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0"))
+        }
+    else:
+        print("Using Live Environment")
+        return {
+            "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
+            "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
+            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0"))
+        }
 
-sfquery = SpotipyAuthJson()
-date = str(datetime.datetime.now().strftime('%Y_%m')) #var for dateyime in YYYY_MM_DD formay
-year = str(datetime.datetime.now().strftime('%Y'))
+def cycle(use_debug=True, output_dir="outputs"):
+    """
+    Cycle the collaborative playlist, clear it, and copy all songs to a compilation playlist.
+    
+    Args:
+        use_debug (bool): If True, uses debug environment variables. If False, uses live environment.
+        output_dir (str): Directory to save output files. Defaults to "outputs".
+    
+    Returns:
+        str: Discord output message with playlist recap
+    """
+    # Initialize Spotify query object
+    sfquery = SpotipyAuthJson()
+    
+    # Get environment configuration
+    config = get_environment_config(use_debug)
+    ep_playlist_id = config["monthly_playlist"]
+    ep_playlist_year = config["yearly_playlist"]
+    discord_bot_output_channel = config["discord_channel"]
+    
+    # Validate configuration
+    if not ep_playlist_id or not ep_playlist_year:
+        raise ValueError("Missing required playlist IDs in environment variables")
+    
+    # Get current date strings
+    date = datetime.datetime.now().strftime('%Y_%m')
+    year = datetime.datetime.now().strftime('%Y')
+    
+    # Get playlist data
+    try:
+        ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
+        if not ep_playlist_month:
+            raise ValueError(f"Could not access playlist: {ep_playlist_id}")
+        playlist_name = ep_playlist_month.get('name', 'Unknown_Playlist')
+    except Exception as e:
+        print(f"Error accessing playlist: {e}")
+        return f"Error: Could not access playlist {ep_playlist_id}"
+    
+    # Initialize Discord bot
+    discord_bot = discord_announce_v2.DiscordBot()
+    
+    # Create output directory if it doesn't exist
+    Path(output_dir).mkdir(exist_ok=True)
+    
+    # Initialize variables
+    track_id_month = []
+    discord_song_output = "Last Month's Recap\n------------------\n"
+    trackdata = []
+    
+    # Open files for writing
+    file_monthly_pl_json = open(Path(output_dir) / f"{playlist_name}_{date}.json", 'w')
+    file_monthly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{date}.csv", 'a')
+    file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
+    
+    try:
+        # Write JSON dump
+        json.dump(ep_playlist_month, file_monthly_pl_json, indent=4)
+        
+        # Process tracks
+        for track in ep_playlist_month.get("tracks", {}).get("items", []):
+            if track.get("track") is None:
+                print("Found a track with value None")
+                continue
+            
+            json_to_csv_fields = [
+                track["track"]["name"],
+                track["track"]["album"]["name"],
+                track["track"]["album"]["artists"][0]["name"],
+                track["added_by"]["id"],
+                track["added_at"],
+                track["track"]["id"],
+            ]
+            
+            trackdata.append(json_to_csv_fields)
+            track_id_month.append(json_to_csv_fields[-1])
+            discord_song_output += (
+                f"{usernameFixer(track['added_by']['id'])} - "
+                f"{track['track']['name']} by "
+                f"{track['track']['album']['artists'][0]['name']}\n"
+            )
+        
+        # Write CSV files
+        _write_csv_file(file_yearly_pl_csv, trackdata)
+        _write_csv_file(file_monthly_pl_csv, trackdata)
+        
+        # Playlist manipulation
+        if track_id_month:
+            sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
+            sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
+        
+        # Debug mode specific actions
+        if use_debug:
+            debugCycle(ep_playlist_id, sfquery)
+        
+        # Send Discord announcement
+        discordAnnouncer(discord_bot, discord_bot_output_channel, discord_song_output)
+        
+        return discord_song_output
+        
+    finally:
+        # Clean up file handles
+        file_monthly_pl_json.close()
+        file_monthly_pl_csv.close()
+        file_yearly_pl_csv.close()
 
-ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-playlist_name = ep_playlist_month['name'] # var for playlist name
+def _write_csv_file(file_handle, trackdata):
+    """Helper function to write CSV data with headers."""
+    trackdata_headers = ["Track", "Album", "Artist", "Added By", "Time Added", "Track ID"]
+    
+    with open(file_handle.name, 'a', newline="") as f:
+        writer = csv.writer(f, delimiter=',')
+        write_headers = not os.path.exists(file_handle.name) or os.path.getsize(file_handle.name) == 0
+        
+        if write_headers:
+            print("Writing header to new file")
+            writer.writerow(trackdata_headers)
+        
+        print(f"Writing trackdata to {file_handle.name}")
+        writer.writerows(trackdata)
 
-track_id_month = [] # store track-IDs for this cycle
-
-discord_bot=discord_announce_v2.DiscordBot()
-
-# File creation operations go here
-app_dir=os.path.join(Path.home(), 'spotify_cycle')
-output_dir=os.path.join(Path.home(), app_dir, "outputs")
-
-try:
-    os.makedirs(output_dir)
-    print('Creating output directory')
-except FileExistsError:
-    print('Output Folder already exists.')
-
-file_yearly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
-
-
-def discordAnnouncer(text):
+def discordAnnouncer(discord_bot, discord_channel, text=''):
+    """Send message to Discord channel."""
     for part in split_multiline_string(text):
         print(part)
-        discord_bot.send(discord_bot_output_channel, part)#debug discord
-        #discord_bot.send(780292448298467333, part)#real discord
+        discord_bot.send(discord_channel, part)
 
-def cycle():
-    discord_song_output="Last Month's Recap\n------------------\n" # Init the discord output with a header
-
-    trackdata = [] # Init trackdata list
-    
-    file_monthly_pl_json = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.json'), 'w')
-    file_monthly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + date + '.csv'), 'a')
-    file_yearly_pl_csv = open((Path(output_dir)) / Path(playlist_name + '_' + year + '.csv'), 'a')
-
-    print(json.dumps(ep_playlist_month, indent=4) ,file=file_monthly_pl_json) #
-    #discord_bot.send(1309330887888080947, 10*"YEET!\n")
-
-    # TODO change json_to_csv_fields name to LIST
-    # TODO handle choosing interesting fields better.
-    # Loop through all tracks in the playlist, write interesting fields to csv
-    for track in ep_playlist_month.get("tracks", {}).get("items", []):
-        if track.get("track") is None:
-            print("Found a track with value None")
-            continue
-        else:
-            json_to_csv_fields = [track["track"]["name"],
-                                track["track"]["album"]["name"],
-                                track["track"]["album"]["artists"][0]["name"],
-                                track["added_by"]["id"],
-                                track["added_at"],
-                                track["track"]["id"],
-                                ]
-        
-        trackdata.append(json_to_csv_fields) #append song entry data list to trackdata dictionary
-        track_id_month.append(json_to_csv_fields[-1]) #append song ID to track_id_month list for later use in moving songs between playlist
-        #song data to print to discord
-        discord_song_output += usernameFixer(track["added_by"]["id"]) + " - " +track["track"]["name"] + " by " + str(track["track"]["album"]["artists"][0]["name"])+"\n"
-    
-    #CSV Writer
-    def trackwriter(filename):
-        trackdata_headers = ["Track","Album","Artist","Added By","Time Added","Track ID"]
-        with open(filename.name, 'a',newline="") as f:
-            writer = csv.writer(f, delimiter=',')
-            write_headers = not os.path.exists(filename.name) or os.path.getsize(filename.name) == 0
-        
-        # Write headers if the file is new or empty
-            if write_headers:
-                print("Writing header to new file")
-                writer.writerow(trackdata_headers)
-
-            print("Writing trackdata to " + str(filename)) 
-            writer.writerows(trackdata)
-    
-    trackwriter(file_yearly_pl_csv)
-    trackwriter(file_monthly_pl_csv)
-
-    # Playlist manipulation logic starts here
-    # Clear contents of this month's track IDs from the monthly playlist ##################
-    sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month) 
-    # Write contents of this months track IDs to the yearly playlist
-    sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
-
-    # Playlist manipulation logic ends here
-    if debug == 1:
-        debugCycle()
-
-    # Announce all songs contributed by all users when cycled
-    discordAnnouncer(discord_song_output)
-
-    return(discord_song_output)
-
-def debugCycle():
-    #Adds a block of songs to the test monthly playlist for debugging.
+def debugCycle(ep_playlist_id, sfquery):
+    """Add debug tracks to the playlist."""
     print("Resetting debugging playlist")
-    track_id_month = ['6ie0uyyvOKTTuIFBMPiNIl', 
-                    '0C9u106kRYCqYSP3KDdk3v', 
-                    '7jBAskQhyfjmbYC0o3pXdW', 
-                    '1Jg3XdrCOZ5rrirIOggdtW', 
-                    '6dU5RxthbuaN31bRbEDlNw', 
-                    '0ZK8TGOsngrstVPsnrHbK1', 
-                    '0iCrjwLMTjWsdOKdOAZ0FC', 
-                    '3uC4r2daXertBxxc8BpbbN', 
-                    '21qnJAMtzC6S5SESuqQLEK', 
-                    '4efAv86uRxR4yQBcb3Vczq',
-                    '6LQAeEZ1zbZUZ5ItQI5l1b',
-                    ]
+    track_id_month = [
+        '6ie0uyyvOKTTuIFBMPiNIl', '0C9u106kRYCqYSP3KDdk3v', '7jBAskQhyfjmbYC0o3pXdW',
+        '1Jg3XdrCOZ5rrirIOggdtW', '6dU5RxthbuaN31bRbEDlNw', '0ZK8TGOsngrstVPsnrHbK1',
+        '0iCrjwLMTjWsdOKdOAZ0FC', '3uC4r2daXertBxxc8BpbbN',
+        '4efAv86uRxR4yQBcb3Vczq', '6LQAeEZ1zbZUZ5ItQI5l1b'
+    ]
     time.sleep(5)
     sfquery.sp.playlist_add_items(ep_playlist_id, track_id_month)
 
-def addBubbleButt():
-    sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
-    return('You did this to yourself')
-
-def addSong(song_id):
-    sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
-    return('You did this to yourself')
-
-#fuction accepts username string as parameter and converts it it matches entry in broken usernames list
+# Keep existing utility functions unchanged
 def usernameFixer(username):
     brokenUsernames = [('s9o1hnuxfsrc8orhu8mdkfg1a','Adam'),
                        ('71fg5vzz2r72fuaevr48h6usr','Tré'),
@@ -210,8 +238,15 @@ def split_multiline_string(input_string, max_length=2000):
     
     return parts
 
-def listContributers():
-    ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
+def listContributers(ep_playlist_id='', use_debug=True):
+    """List contributors with environment support."""
+    if not ep_playlist_id:
+        config = get_environment_config(use_debug)
+        ep_playlist_id = config["monthly_playlist"]
+    
+    sfquery = SpotipyAuthJson()
+    ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
+    
     userSongCount = {}
     output = ''
     un_length=0
@@ -230,10 +265,29 @@ def listContributers():
         output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
     return (output)
 
+def addBubbleButt(ep_playlist_id='', use_debug=True):
+    """Add bubble butt song with environment support."""
+    if not ep_playlist_id:
+        config = get_environment_config(use_debug)
+        ep_playlist_id = config["monthly_playlist"]
+    
+    sfquery = SpotipyAuthJson()
+    sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
+    return 'You did this to yourself'
+
+def addSong(song_id, ep_playlist_id='', use_debug=True):
+    """Add song with environment support."""
+    if not ep_playlist_id:
+        config = get_environment_config(use_debug)
+        ep_playlist_id = config["monthly_playlist"]
+    
+    sfquery = SpotipyAuthJson()
+    sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
+    return 'You did this to yourself'
+
 def main():
-    cycle()
-    #print(usernameFixer('Alex'))
-    #print(listContributers())
+    """Main function for direct script execution."""
+    cycle(use_debug=True)
 
 if __name__ == '__main__':
     main()
