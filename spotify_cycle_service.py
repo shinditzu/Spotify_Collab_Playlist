@@ -8,18 +8,25 @@ import dotenv
 
 # dotenv.load_dotenv()
 
-def job():
-    today = date.today()
-    lastday = calendar.monthrange(today.year, today.month)[1]
+today = date.today()
+lastday_num = calendar.monthrange(today.year, today.month)[1]
+lastday = date(today.year, today.month, lastday_num)
+firstday = date(today.year, today.month, 1)
 
-    if today.day == lastday:
-        cycle()
+def job():
+    if today == firstday:
+        print(f"Today is {today}, the first day of the month. I just cycled the live playlist.")
+        cycle(use_debug=False)
+
+    elif today == lastday:
+        print(f"Today is {today}, the last day of the month. I'm going to cycle the live list tomorrow.")
+        cycle(use_debug=True)
     else:
-        print(f"Today is {today}, not the last day of the month. No action taken.")
+        print(f"Today is {today}, not the last day of the month. Running debug flow.")
         cycle(use_debug=True)
 
-#schedule.every(1).day.at("00:05").do(job)
-schedule.every(1).minute.do(job)
+schedule.every(1).day.at("00:05").do(job)
+# schedule.every(1).minute.do(job)
 
 while True:
     schedule.run_pending()
