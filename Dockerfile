@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Create outputs directory and give ownership to appuser
-RUN mkdir -p outputs && chown -R appuser:appuser outputs
+RUN mkdir -p outputs && chown -R appuser:appuser outputs && chmod -R 755 outputs
 
 # Switch to the non-privileged user to run the application.
 USER appuser
