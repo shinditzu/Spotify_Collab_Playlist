@@ -47,5 +47,8 @@ RUN mkdir -p outputs && chown -R appuser:appuser outputs && chmod -R 755 outputs
 # Switch to the non-privileged user to run the application.
 USER appuser
 
+# Ensure we can write to outputs on startup
+RUN mkdir -p outputs && touch outputs/.keep
+
 # Run the application.
 CMD ["sh", "-c", "python spotify_cycle_service.py & python discord_bot_service.py & wait"]
