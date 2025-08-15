@@ -11,18 +11,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-script_dir=os.path.dirname(os.path.abspath(__file__))
-token_path=os.path.join(script_dir, 'token.txt')
+#script_dir=os.path.dirname(os.path.abspath(__file__))
+#token_path=os.path.join(script_dir, 'token.txt')
 #home_dir=Path.home()
 #app_dir=home_dir / 'spotify_cycle'
-app_dir=os.path.join(Path.home(), 'spotify_cycle')
+#app_dir=os.path.join(Path.home(), 'spotify_cycle')
 # config_file=os.path.join(app_dir, 'config.json')
-default_config={
-    "SPOTIPY_CLIENT_ID": "REPLACE_ME",
-    "SPOTIPY_CLIENT_SECRET": "REPLACE_ME",
-    "SPOTIPY_REDIRECT_URI": "http://localhost:8123",
-    "DISCORD_BOT_TOKEN": "REPLACE_ME"
-}
+# default_config={
+#     "SPOTIPY_CLIENT_ID": "REPLACE_ME",
+#     "SPOTIPY_CLIENT_SECRET": "REPLACE_ME",
+#     "SPOTIPY_REDIRECT_URI": "http://localhost:8123",
+#     "DISCORD_BOT_TOKEN": "REPLACE_ME"
+# }
 
 # #Check if app user directory exists
 # try:
@@ -72,7 +72,7 @@ class SpotipyAuth:
         }
 
         # Set the token info in the cache handler
-        auth_manager.cache_handler.save_token_to_cache(token_info)
+        #auth_manager.cache_handler.save_token_to_cache(token_info)
 
         self.sp = spotipy.Spotify(auth_manager=auth_manager)
         
@@ -86,26 +86,26 @@ class SpotifyBotAuth:
         )
         self.sp = spotipy.Spotify(auth_manager=auth_manager)
 
-class SpotipyAuthJson:
-# TODO build under SpotipyAuth class and maybe trigger JSON vs ENV read via arg or something.
-    def __init__(self):
-        """
-        instantiate spotipy with my auth parameters using JSON configuration parameters.
-        """
+# class SpotipyAuthJson:
+# # TODO build under SpotipyAuth class and maybe trigger JSON vs ENV read via arg or something.
+#     def __init__(self):
+#         """
+#         instantiate spotipy with my auth parameters using JSON configuration parameters.
+#         """
 
-        scope = 'user-read-private playlist-modify-public'
-        client_id = os.getenv('SPOTIPY_CLIENT_ID')
-        client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
-        redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+#         scope = 'user-read-private playlist-modify-public'
+#         client_id = os.getenv('SPOTIPY_CLIENT_ID')
+#         client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+#         redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
 
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, 
-                                               client_secret=client_secret, 
-                                               redirect_uri=redirect_uri,
-                                               scope=scope,
-                                               cache_path=False,
-                                               open_browser=False,
-                                               )
-        )
+#         self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, 
+#                                                client_secret=client_secret, 
+#                                                redirect_uri=redirect_uri,
+#                                                scope=scope,
+#                                                cache_path=False,
+#                                                open_browser=False,
+#                                                )
+#         )
 
 
 
