@@ -12,7 +12,7 @@ import time
 import dotenv
 from spotipy.oauth2 import SpotifyOAuth
 from pprint import pprint
-from earp_auth import SpotipyAuth, SpotipyAuthJson
+from earp_auth import SpotipyAuth
 import discord_announce_v2
 
 dotenv.load_dotenv()
@@ -54,7 +54,7 @@ def cycle(use_debug=True, output_dir="outputs"):
         str: Discord output message with playlist recap
     """
     # Initialize Spotify query object
-    sfquery = SpotipyAuthJson()
+    sfquery = SpotipyAuth()
     
     # Get environment configuration
     config = get_environment_config(use_debug)
@@ -248,8 +248,8 @@ def listContributers(ep_playlist_id='', use_debug=True):
     if not ep_playlist_id:
         config = get_environment_config(use_debug)
         ep_playlist_id = config["monthly_playlist"]
-    
-    sfquery = SpotipyAuthJson()
+
+    sfquery = SpotipyAuth()
     ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
     
     userSongCount = {}
@@ -275,8 +275,8 @@ def addBubbleButt(ep_playlist_id='', use_debug=True):
     if not ep_playlist_id:
         config = get_environment_config(use_debug)
         ep_playlist_id = config["monthly_playlist"]
-    
-    sfquery = SpotipyAuthJson()
+
+    sfquery = SpotipyAuth()
     sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
     return 'You did this to yourself'
 
@@ -285,8 +285,8 @@ def addSong(song_id, ep_playlist_id='', use_debug=True):
     if not ep_playlist_id:
         config = get_environment_config(use_debug)
         ep_playlist_id = config["monthly_playlist"]
-    
-    sfquery = SpotipyAuthJson()
+
+    sfquery = SpotipyAuth()
     sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
     return 'You did this to yourself'
 

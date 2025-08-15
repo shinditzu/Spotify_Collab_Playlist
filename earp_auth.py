@@ -2,7 +2,7 @@
 #Client ID, Client Secret and Redirect URI
 
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import os
 from pprint import pprint
 import json
@@ -46,22 +46,32 @@ class SpotipyAuth:
         """
         instantiate spotipy with my auth parameters. (uses env vars)
         """
-        scope = 'user-read-private playlist-modify-public'
-        client_id = os.environ.get('SPOTIPY_CLIENT_ID')
-        client_secret = os.environ.get('SPOTIPY_CLIENT_SECRET')
-        redirect_uri = os.environ.get('SPOTIPY_REDIRECT_URI')
-
-
-
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id, 
-                                               client_secret=client_secret, 
-                                               redirect_uri=redirect_uri,
-                                               scope=scope,
-                                               #cache_path=token_path,
-                                               cache_path=None,
-                                               open_browser=False,
-                                               )
+        auth_manager=SpotifyOAuth(
+            client_id = os.environ.get('SPOTIPY_CLIENT_ID'),
+            client_secret = os.environ.get('SPOTIPY_CLIENT_SECRET'),
+            redirect_uri = os.environ.get('SPOTIPY_REDIRECT_URI'),
+            scope = 'user-read-private playlist-modify-public',
+            cache_path=None,  # Use None to avoid caching, or specify a path if needed
+            open_browser=False,  # Set to False to avoid opening a browser for authentication
         )
+
+        refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
+        print(f"Using refresh token: {refresh_token}")
+        if refresh_token:
+            token_info = auth_manager.refresh_access_token(refresh_token)
+            auth_manager.cache_handler.save_token_to_cache(token_info)
+
+        self.sp = spotipy.Spotify(auth_manager=auth_manager)
+        
+
+class SpotifyBotAuth:
+    def __init__(self):
+        # No redirect URI needed - uses client credentials only
+        auth_manager = SpotifyClientCredentials(
+            client_id=os.getenv('SPOTIPY_CLIENT_ID'),
+            client_secret=os.getenv('SPOTIPY_CLIENT_SECRET')
+        )
+        self.sp = spotipy.Spotify(auth_manager=auth_manager)
 
 class SpotipyAuthJson:
 # TODO build under SpotipyAuth class and maybe trigger JSON vs ENV read via arg or something.
@@ -79,7 +89,7 @@ class SpotipyAuthJson:
                                                client_secret=client_secret, 
                                                redirect_uri=redirect_uri,
                                                scope=scope,
-                                               cache_path=token_path,
+                                               cache_path=False,
                                                open_browser=False,
                                                )
         )
@@ -87,9 +97,10 @@ class SpotipyAuthJson:
 
 
 def main():
-    test = SpotipyAuthJson()
+    test = SpotipyAuth()
     #pprint(test.sp.track("2S4CfxZG29GZWwDeMtBq2R"))
     pprint(test.sp.current_user())
+
 
     # #Test Starts here
     # ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
