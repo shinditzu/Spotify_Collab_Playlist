@@ -14,7 +14,7 @@ services:
     env_file: 
       - .env
     volumes:
-      - ./outputs:/outputs
+      - ./outputs:/app/outputs
 
     # ports:
     #   - 8000:8000

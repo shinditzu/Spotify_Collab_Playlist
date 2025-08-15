@@ -124,9 +124,14 @@ def cycle(use_debug=True, output_dir="outputs"):
             )
         
         # Write CSV files
-        _write_csv_file(file_yearly_pl_csv, trackdata)
-        _write_csv_file(file_monthly_pl_csv, trackdata)
-        
+        try:
+            _write_csv_file(file_yearly_pl_csv, trackdata)
+            print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
+            _write_csv_file(file_monthly_pl_csv, trackdata)
+            print(f"CSV files written successfully to {file_monthly_pl_csv.name}")
+        except Exception as e:
+            print(f"Error writing CSV files: {e}")
+            
         # Playlist manipulation
         if track_id_month:
             sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
