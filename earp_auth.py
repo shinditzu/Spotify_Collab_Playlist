@@ -41,11 +41,18 @@ default_config={
 
 
 class SpotipyAuth:
-
     def __init__(self):
         """
         instantiate spotipy with my auth parameters. (uses env vars)
         """
+        refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
+        access_token = os.environ.get('SPOTIFY_ACCESS_TOKEN')
+
+        print(f"Using refresh token: {refresh_token}")
+
+        if not refresh_token:
+            raise ValueError("SPOTIFY_REFRESH_TOKEN environment variable is required")
+
         auth_manager=SpotifyOAuth(
             client_id = os.environ.get('SPOTIPY_CLIENT_ID'),
             client_secret = os.environ.get('SPOTIPY_CLIENT_SECRET'),
@@ -55,11 +62,17 @@ class SpotipyAuth:
             open_browser=False,  # Set to False to avoid opening a browser for authentication
         )
 
-        refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
-        print(f"Using refresh token: {refresh_token}")
-        if refresh_token:
-            token_info = auth_manager.refresh_access_token(refresh_token)
-            auth_manager.cache_handler.save_token_to_cache(token_info)
+        token_info = {
+            "access_token": access_token,
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "scope": "user-read-private playlist-modify-public",
+            "expires_at": 1755142485,
+            "refresh_token": refresh_token
+        }
+
+        # Set the token info in the cache handler
+        auth_manager.cache_handler.save_token_to_cache(token_info)
 
         self.sp = spotipy.Spotify(auth_manager=auth_manager)
         
