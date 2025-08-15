@@ -15,8 +15,6 @@ services:
       - .env
     volumes:
       - ./outputs:/app/outputs
-    user: "10001:10001"  # Match the UID from Dockerfile
-
     # ports:
     #   - 8000:8000
 
