@@ -40,13 +40,13 @@ async def on_ready():
 #     if message.content.startswith('!hello'):
 #         await message.reply('Hello!', mention_author=True)
 
-@bot.command()
-async def hello(ctx):
-    await ctx.send(f"Hello, {ctx.author.mention}! 👋")
+# @bot.command()
+# async def hello(ctx):
+#     await ctx.send(f"Hello, {ctx.author.mention}! 👋")
 
-@bot.command()
-async def bubblebutt(interaction: discord.Interaction):
-    await interaction.response.send_message(f"{interaction.user.name} did a bubblebutt")
+# @bot.command()
+# async def bubblebutt(interaction: discord.Interaction):
+#     await interaction.response.send_message(f"{interaction.user.name} did a bubblebutt")
 
 @bot.command()
 async def sync(ctx):

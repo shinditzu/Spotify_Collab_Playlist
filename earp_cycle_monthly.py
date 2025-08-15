@@ -84,7 +84,7 @@ def cycle(use_debug=True, output_dir="outputs"):
     discord_bot = discord_announce_v2.DiscordBot()
     
     # Create output directory if it doesn't exist
-    Path(output_dir).mkdir(exist_ok=True)
+    # Path(output_dir).mkdir(exist_ok=True)
     
     # Initialize variables
     track_id_month = []
