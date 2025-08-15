@@ -32,5 +32,5 @@ schedule.every(1).minute.do(job)
 
 while True:
     print("Checking if it's time to run the job...")
-    schedule.run_pending()
-    time.sleep(30)
+    schedule.run_pending() #check for jobs to run.
+    time.sleep(30) #sleep for 30 seconds
