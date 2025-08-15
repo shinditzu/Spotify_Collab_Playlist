@@ -72,7 +72,7 @@ class SpotipyAuth:
         }
 
         # Set the token info in the cache handler
-        #auth_manager.cache_handler.save_token_to_cache(token_info)
+        auth_manager.cache_handler.save_token_to_cache(token_info)
 
         self.sp = spotipy.Spotify(auth_manager=auth_manager)
         
