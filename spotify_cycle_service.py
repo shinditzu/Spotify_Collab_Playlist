@@ -30,5 +30,6 @@ def job():
 schedule.every(1).minute.do(job)
 
 while True:
+    print("Checking if it's time to run the job...")
     schedule.run_pending()
     time.sleep(1)
