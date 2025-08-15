@@ -8,6 +8,8 @@ from pprint import pprint
 import json
 from pathlib import Path
 from dotenv import load_dotenv
+from spotipy.cache_handler import MemoryCacheHandler
+
 
 load_dotenv()
 
@@ -58,8 +60,8 @@ class SpotipyAuth:
             client_secret = os.environ.get('SPOTIPY_CLIENT_SECRET'),
             redirect_uri = os.environ.get('SPOTIPY_REDIRECT_URI'),
             scope = 'user-read-private playlist-modify-public',
-            cache_path=None,  # Use None to avoid caching, or specify a path if needed
-            open_browser=False,  # Set to False to avoid opening a browser for authentication
+            cache_handler=MemoryCacheHandler(),  # Use memory cache instead
+            open_browser=False,
         )
 
         token_info = {
