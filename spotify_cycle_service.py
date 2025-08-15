@@ -7,6 +7,7 @@ import os
 import dotenv
 
 # dotenv.load_dotenv()
+print("Starting Spotify Cycle Service...")  
 
 today = date.today()
 lastday_num = calendar.monthrange(today.year, today.month)[1]
