@@ -57,7 +57,8 @@ class SpotipyAuth:
                                                client_secret=client_secret, 
                                                redirect_uri=redirect_uri,
                                                scope=scope,
-                                               cache_path=token_path,
+                                               #cache_path=token_path,
+                                               cache_path=None,
                                                open_browser=False,
                                                )
         )
