@@ -13,8 +13,8 @@ services:
       context: .
     env_file: 
       - .env
-    # volumes:
-    #   - ./outputs:/app/outputs
+    volumes:
+      - ./outputs:/app/outputs
     # ports:
     #   - 8000:8000
 
