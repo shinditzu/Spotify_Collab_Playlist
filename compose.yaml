@@ -15,6 +15,7 @@ services:
       - .env
     volumes:
       - ./outputs:/app/outputs
+    restart: unless-stopped  # Add this line
     # ports:
     #   - 8000:8000
 
