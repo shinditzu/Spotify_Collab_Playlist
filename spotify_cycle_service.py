@@ -27,8 +27,8 @@ def job():
         print(f"Today is {today} time is {current_time.tm_hour}:{current_time.tm_min}, not the last day of the month. Running debug flow.")
         cycle(use_debug=True)
 
-#schedule.every(1).day.at("00:05").do(job)
-schedule.every(1).minute.do(job)
+schedule.every(1).day.at("00:05").do(job)
+#schedule.every(1).minute.do(job)
 
 while True:
     print("Checking if it's time to run the job...")

@@ -243,7 +243,7 @@ def split_multiline_string(input_string, max_length=2000):
     
     return parts
 
-def listContributers(ep_playlist_id='', use_debug=True):
+def listContributers(ep_playlist_id='', use_debug=False):
     """List contributors with environment support."""
     if not ep_playlist_id:
         config = get_environment_config(use_debug)
@@ -270,7 +270,7 @@ def listContributers(ep_playlist_id='', use_debug=True):
         output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
     return (output)
 
-def addBubbleButt(ep_playlist_id='', use_debug=True):
+def addBubbleButt(ep_playlist_id='', use_debug=False):
     """Add bubble butt song with environment support."""
     if not ep_playlist_id:
         config = get_environment_config(use_debug)
@@ -280,7 +280,7 @@ def addBubbleButt(ep_playlist_id='', use_debug=True):
     sfquery.sp.playlist_add_items(ep_playlist_id, ['6LQAeEZ1zbZUZ5ItQI5l1b'])
     return 'You did this to yourself'
 
-def addSong(song_id, ep_playlist_id='', use_debug=True):
+def addSong(song_id, ep_playlist_id='', use_debug=False):
     """Add song with environment support."""
     if not ep_playlist_id:
         config = get_environment_config(use_debug)
