@@ -50,7 +50,7 @@ class SpotipyAuth:
         refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
         access_token = os.environ.get('SPOTIFY_ACCESS_TOKEN')
 
-        print(f"Using refresh token: {refresh_token}")
+        #print(f"Using refresh token: {refresh_token}")
 
         if not refresh_token:
             raise ValueError("SPOTIFY_REFRESH_TOKEN environment variable is required")
