@@ -1,14 +1,16 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from earp_cycle_monthly import cycle
 import schedule
 import time
 import calendar
 import os
 import dotenv
+import pytz
 
 # dotenv.load_dotenv()
-print("Starting Spotify Cycle Service...")  
+print("Starting Spotify Cycle Service...")
 
+tz = pytz.timezone("America/New_York")
 today = date.today()
 lastday_num = calendar.monthrange(today.year, today.month)[1]
 lastday = date(today.year, today.month, lastday_num)
@@ -16,19 +18,25 @@ firstday = date(today.year, today.month, 1)
 current_time = time.localtime()
 
 def job():
+    now = datetime.now(tz)
+    today = now.date()
+
+    print(f"Job running at {now.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+
+
     if today == firstday:
-        print(f"Today is {today} time is {current_time.tm_hour}:{current_time.tm_min}, the first day of the month. I just cycled the live playlist.")
+        print(f"Today is {today} time is {now.strftime('%H:%M')}, the first day of the month. I just cycled the live playlist.")
         cycle(use_debug=False)
 
     elif today == lastday:
-        print(f"Today is {today} time is {current_time.tm_hour}:{current_time.tm_min}, the last day of the month. I'm going to cycle the live list tomorrow.")
+        print(f"Today is {today} time is {now.strftime('%H:%M')}, the last day of the month. I'm going to cycle the live list tomorrow.")
         cycle(use_debug=True)
     else:
-        print(f"Today is {today} time is {current_time.tm_hour}:{current_time.tm_min}, not the last day of the month. Running debug flow.")
+        print(f"Today is {today} time is {now.strftime('%H:%M')}, not the last day of the month. Running debug flow.")
         cycle(use_debug=True)
 
-schedule.every(1).day.at("00:05").do(job)
-#schedule.every(1).minute.do(job)
+#schedule.every(1).day.at("00:05").do(job)
+schedule.every(1).minute.do(job)
 
 while True:
     print("Checking if it's time to run the job...")
