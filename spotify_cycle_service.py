@@ -35,10 +35,10 @@ def job():
         print(f"Today is {today} time is {now.strftime('%H:%M')}, not the last day of the month. Running debug flow.")
         cycle(use_debug=True)
 
-schedule.every(1).day.at("00:05").do(job)
+schedule.every(1).day.at("00:05", tz).do(job)
 #schedule.every(1).minute.do(job)
 
 while True:
-    print("Checking if it's time to run the job...")
+    print(f"{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}. Checking if it's time to run the job...")
     schedule.run_pending() #check for jobs to run.
     time.sleep(60) #sleep for 60 seconds
