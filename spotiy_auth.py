@@ -48,7 +48,46 @@ class SpotipyAuth:
         auth_manager.cache_handler.save_token_to_cache(token_info)
 
         self.sp = spotipy.Spotify(auth_manager=auth_manager)
+
+    def get_tracks_from_playlist(self, playlist_id):
+        """
+        Given a playlist ID, return the tracks in that playlist.
+        """
+        results = self.sp.playlist_items(playlist_id)
+        tracks = results['items']
+        while results['next']:
+            results = self.sp.next(results)
+            tracks.extend(results['items'])
+        return tracks   
         
+
+def get_environment_config(use_debug=True):
+    """
+    Get environment configuration based on debug/live setting.
+    
+    Args:
+        use_debug (bool): If True, use debug environment. If False, use live environment.
+    
+    Returns:
+        dict: Configuration dictionary with playlist IDs and Discord channel
+    """
+    if use_debug:
+        print("Using Debug Environment")
+        return {
+            "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
+            "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
+            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
+            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
+        }
+    else:
+        print("Using Live Environment")
+        return {
+            "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
+            "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
+            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
+            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
+        }
+    
 
 class SpotifyBotAuth:
     def __init__(self):
@@ -83,24 +122,25 @@ class SpotifyBotAuth:
 
 
 def main():
+    import questionary
     test = SpotipyAuth()
     #pprint(test.sp.track("2S4CfxZG29GZWwDeMtBq2R"))
-    pprint(test.sp.current_user())
 
+    """Main function for direct script execution."""
+    choices = ['Test Auth', 'Get Playlist Tracks']
 
-    # #Test Starts here
-    # ep_playlist_id = '2HPyEPDBY7NZmOV72s5rie' #spotify playist ID "Ear Porn!!(Live)"
-    # sfquery = SpotipyAuthJson()
-    # ep_playlist_month = sfquery.sp.playlist(ep_playlist_id) #imports playlist as python dict
-    # for track in ep_playlist_month["tracks"]["items"]:
-    #     json_to_csv_fields = [track["track"]["name"],
-    #                         track["track"]["album"]["name"],
-    #                         track["track"]["album"]["artists"][0]["name"],
-    #                         track["added_by"]["id"],
-    #                         track["added_at"],
-    #                         track["track"]["id"],
-    #                         ]
-    # print(json_to_csv_fields)
+    selected = questionary.select(
+        "Please choose an option:",
+        choices=choices
+    ).ask()
+
+    if selected == 'Test Auth':
+        pprint(test.sp.current_user())
+    elif selected == 'Get Debug Playlist Tracks':
+        get_environment_config(use_debug=True)
+        tracks = test.get_tracks_from_playlist(os.getenv("DEBUG_MONTHLY_PLAYLIST"))
+        pprint(tracks)
+    
 
 if __name__ == '__main__':
     main()       

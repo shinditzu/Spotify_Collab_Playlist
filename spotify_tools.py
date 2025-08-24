@@ -12,7 +12,7 @@ import time
 import dotenv
 from spotipy.oauth2 import SpotifyOAuth
 from pprint import pprint
-from spotiy_auth import SpotipyAuth
+from spotiy_auth import SpotipyAuth, get_environment_config
 import discord_announce_v2
 import questionary
 
@@ -22,33 +22,6 @@ dotenv.load_dotenv()
 date = datetime.datetime.now().strftime('%Y_%m')
 year = datetime.datetime.now().strftime('%Y')
 
-def get_environment_config(use_debug=True):
-    """
-    Get environment configuration based on debug/live setting.
-    
-    Args:
-        use_debug (bool): If True, use debug environment. If False, use live environment.
-    
-    Returns:
-        dict: Configuration dictionary with playlist IDs and Discord channel
-    """
-    if use_debug:
-        print("Using Debug Environment")
-        return {
-            "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
-            "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
-            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
-            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
-        }
-    else:
-        print("Using Live Environment")
-        return {
-            "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
-            "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
-            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
-            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
-        }
-    
 def yearly_data_by_user(use_debug=True):
     #config = get_environment_config(use_debug)
 
@@ -68,19 +41,9 @@ def yearly_data_by_user(use_debug=True):
     return user_songs
 
 def query_monthly_data_from_spotify(use_debug=True):
-        config = get_environment_config(use_debug)
-        sfquery = SpotipyAuth()
-        ep_playlist_id = config["monthly_playlist"]
-
-        try:
-            ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
-            if not ep_playlist_month:
-                raise ValueError(f"Could not access playlist: {ep_playlist_id}")
-            return ep_playlist_month
-        except Exception as e:
-            print(f"Error accessing playlist: {e}")
-            return None
-        
+    config = get_environment_config(use_debug)
+    ep_playlist_id = config["monthly_playlist"]
+    pass
 
 
 def cycle(use_debug=True, output_dir="outputs"):
@@ -106,6 +69,8 @@ def cycle(use_debug=True, output_dir="outputs"):
     # Validate configuration
     if not ep_playlist_id or not ep_playlist_year:
         raise ValueError("Missing required playlist IDs in environment variables")
+    
+
     
     # Get playlist data
     try:
