@@ -15,6 +15,7 @@ from pprint import pprint
 from spotiy_auth import SpotipyAuth
 import discord_announce_v2
 import questionary
+from bot_tools import ai_monthly_commentary
 
 dotenv.load_dotenv()
 
@@ -48,29 +49,62 @@ def get_environment_config(use_debug=True):
 # Get current date strings
 date = datetime.datetime.now().strftime('%Y_%m')
 year = datetime.datetime.now().strftime('%Y')
+current_month = datetime.datetime.now().strftime('%m')
 
-def yearly_data_by_user(use_debug=True):
+# def yearly_data_by_user(use_debug=True):
+#     #config = get_environment_config(use_debug)
+
+#     with open("outputs/Ear Porn!!_2025.csv", newline="") as yearly_csvfile:
+#         reader = csv.DictReader(yearly_csvfile)
+#         yearly_data = [row for row in reader]
+
+#     # Song Dicts by User
+#     user_songs = {}
+#     for row in yearly_data:
+#         user_id = usernameFixer(row["Added By"])
+#         if user_id not in user_songs:
+#             user_songs[user_id] = []
+#         user_songs[user_id].append(row)
+
+#     #pprint(user_songs.keys())
+#     return user_songs
+
+def parse_yearly_data_by_user(use_debug=True, month_filter=None):
     #config = get_environment_config(use_debug)
 
     with open("outputs/Ear Porn!!_2025.csv", newline="") as yearly_csvfile:
         reader = csv.DictReader(yearly_csvfile)
-        yearly_data = [row for row in reader]
+        if month_filter:
+            track_list = [row for row in reader if row["Time Added"].startswith(f"{year}-{month_filter:02d}")]
+        else:
+            track_list = [row for row in reader]
 
     # Song Dicts by User
     user_songs = {}
-    for row in yearly_data:
+    for row in track_list:
         user_id = usernameFixer(row["Added By"])
         if user_id not in user_songs:
             user_songs[user_id] = []
-        user_songs[user_id].append(row)
+        else:
+            user_songs[user_id].append(row)
 
     #pprint(user_songs.keys())
     return user_songs
 
-def query_monthly_data_from_spotify(use_debug=True):
+def query_this_months_data_from_spotify(use_debug=True):
+    sfquery = SpotipyAuth()
     config = get_environment_config(use_debug)
     ep_playlist_id = config["monthly_playlist"]
-    pass
+    ep_playlist_month = sfquery.get_simplified_playlist_info(ep_playlist_id)
+
+    user_songs = {}
+    for row in ep_playlist_month:
+        user_id = usernameFixer(row["Added By"])
+        if user_id not in user_songs:
+            user_songs[user_id] = []
+        else:
+            user_songs[user_id].append(row)
+    return user_songs
 
 
 def cycle(use_debug=True, output_dir="outputs"):
@@ -317,7 +351,10 @@ def main():
                 'Get Debug Playlist Tracks (Full)',
                 'Get Debug Playlist Tracks(Interesting Fields Only)',
                 'Get Live Playlist Tracks',
-                'Get Live Playlist Tracks (Interesting Fields Only)']
+                'Get Live Playlist Tracks (Interesting Fields Only)',
+                'Parse Yearly Data by User',
+                'AI Commentary from CSV Yearly Data',
+                'AI Commentary from This Month\'s Spotify Data',]
     
     selected = questionary.select(
         "Please choose an option:",
@@ -327,7 +364,7 @@ def main():
     if selected == 'Cycle Debug Playlist':
         cycle(use_debug=True)
     elif selected == 'Test CSV Data':
-        print(yearly_data_by_user(use_debug=True))
+        print(parse_yearly_data_by_user(use_debug=True))
     elif selected == 'Get Debug Playlist Tracks':
         get_environment_config(use_debug=True)
         tracks = test.get_tracks_from_playlist(os.getenv("DEBUG_MONTHLY_PLAYLIST"))
@@ -344,7 +381,28 @@ def main():
         get_environment_config(use_debug=False)
         tracks = test.get_simplified_playlist_info(os.getenv("LIVE_MONTHLY_PLAYLIST"))
         pprint(tracks)
-
+    elif selected == "Parse Yearly Data by User":
+        choices = ['All Time', 'Filter by Month']
+        selected = questionary.select(
+            "Please choose an option:",
+            choices=choices
+        ).ask()
+        if selected == 'All Time':
+            user_data = parse_yearly_data_by_user(use_debug=True)
+            pprint(user_data)
+        elif selected == 'Filter by Month':
+            month = questionary.text("Enter month (1-12):").ask()
+            user_data = parse_yearly_data_by_user(use_debug=True, month_filter=int(month))
+            pprint(user_data)
+    elif selected == "AI Commentary from CSV Yearly Data":
+        month = questionary.text("Enter month (1-12):").ask()
+        user_data = parse_yearly_data_by_user(use_debug=True, month_filter=int(month))
+        response=ai_monthly_commentary(user_data)
+        pprint(response)
+    elif selected == 'AI Commentary from This Month\'s Live Spotify Data': #TODO fix meß
+        user_data=get_environment_config(use_debug=False)
+        response=ai_monthly_commentary(user_data)
+        pprint(response)
 
 
 

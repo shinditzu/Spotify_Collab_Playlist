@@ -1,14 +1,13 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-from spotify_tools import yearly_data_by_user
 from pprint import pprint
 
 
 load_dotenv()
-print(os.getenv("OPENAI_API_KEY"))
+#print(os.getenv("OPENAI_API_KEY"))
 
-yearly_user_song_data = yearly_data_by_user()
+# yearly_user_song_data = parse_yearly_data_by_user(use_debug=)
 # yearly_data_str = str(yearly_user_song_data)
 
 #pprint(yearly_user_song_data)
@@ -36,9 +35,9 @@ tone_list = ["fun", "poetic", "straightforward", "snarky"]
 rhyme = False
 response_content = []
 
-def ai_monthly_commentary():
-    for user in yearly_user_song_data:
-        songs = "\n".join('Track: ' + song['Track'] + ' Artist: ' + song['Artist'] for song in yearly_user_song_data[user]) + "\n"
+def ai_monthly_commentary(song_data, tone=tone_list[2]):
+    for user in song_data:
+        songs = "\n".join('Track: ' + song['Track'] + ' Artist: ' + song['Artist'] for song in song_data[user]) + "\n"
         #print(songs)
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -49,13 +48,13 @@ def ai_monthly_commentary():
                         "You are a music critic. Write a commentary about a user's musical taste."
 
                         f"""INSTRUCTIONS:
-                        - Style: {tone_list[2]}.
+                        - Style: {tone}.
                         - Output EXACTLY three sentences.
                         - Be specific: reference patterns (e.g., novelty, internet humor, classic rock, soulful/nostalgic picks).
                         - Avoid emojis. Keep it warm, tight, and readable."""
 
                         "USER DATA:"
-                        f"{yearly_user_song_data[user]}"
+                        f"{song_data[user]}"
                         f"{songs}"
 
                     )
@@ -63,6 +62,7 @@ def ai_monthly_commentary():
             ]
         )
         response_content.append({user: response.choices[0].message.content})
+    return response_content
 
 def main():
     pprint(response_content)
