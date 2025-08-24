@@ -399,9 +399,20 @@ def main():
         user_data = parse_yearly_data_by_user(use_debug=True, month_filter=int(month))
         response=ai_monthly_commentary(user_data)
         pprint(response)
-    elif selected == 'AI Commentary from This Month\'s Live Spotify Data': #TODO fix meß
-        user_data=get_environment_config(use_debug=False)
-        response=ai_monthly_commentary(user_data)
+    elif selected == 'AI Commentary from This Month\'s Spotify Data': 
+        get_environment_config(use_debug=False)
+        user_data=test.get_simplified_playlist_info(os.getenv("LIVE_MONTHLY_PLAYLIST"))
+
+        user_songs = {}
+        for row in user_data:
+            user_id = usernameFixer(row["Added By"])
+            if user_id not in user_songs:
+                user_songs[user_id] = []
+            else:
+                user_songs[user_id].append(row)
+
+        pprint(user_songs)
+        response=ai_monthly_commentary(user_songs)
         pprint(response)
 
 
