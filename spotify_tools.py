@@ -12,11 +12,38 @@ import time
 import dotenv
 from spotipy.oauth2 import SpotifyOAuth
 from pprint import pprint
-from spotiy_auth import SpotipyAuth, get_environment_config
+from spotiy_auth import SpotipyAuth
 import discord_announce_v2
 import questionary
 
 dotenv.load_dotenv()
+
+def get_environment_config(use_debug=True):
+    """
+    Get environment configuration based on debug/live setting.
+    
+    Args:
+        use_debug (bool): If True, use debug environment. If False, use live environment.
+    
+    Returns:
+        dict: Configuration dictionary with playlist IDs and Discord channel
+    """
+    if use_debug:
+        print("Using Debug Environment")
+        return {
+            "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
+            "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
+            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
+            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
+        }
+    else:
+        print("Using Live Environment")
+        return {
+            "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
+            "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
+            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
+            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
+        }
 
 # Get current date strings
 date = datetime.datetime.now().strftime('%Y_%m')
@@ -47,16 +74,6 @@ def query_monthly_data_from_spotify(use_debug=True):
 
 
 def cycle(use_debug=True, output_dir="outputs"):
-    """
-    Cycle the collaborative playlist, clear it, and copy all songs to a compilation playlist.
-    
-    Args:
-        use_debug (bool): If True, uses debug environment variables. If False, uses live environment.
-        output_dir (str): Directory to save output files. Defaults to "outputs".
-    
-    Returns:
-        str: Discord output message with playlist recap
-    """
     # Initialize Spotify query object
     sfquery = SpotipyAuth()
     
@@ -70,14 +87,13 @@ def cycle(use_debug=True, output_dir="outputs"):
     if not ep_playlist_id or not ep_playlist_year:
         raise ValueError("Missing required playlist IDs in environment variables")
     
-
-    
     # Get playlist data
     try:
-        ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
+        ep_playlist_month = sfquery.get_simplified_playlist_info(ep_playlist_id)
         if not ep_playlist_month:
             raise ValueError(f"Could not access playlist: {ep_playlist_id}")
-        playlist_name = ep_playlist_month.get('name', 'Unknown_Playlist')
+        #playlist_name = ep_playlist_month.get('name', 'Unknown_Playlist')
+        playlist_name = sfquery.sp.playlist(ep_playlist_id).get('name', 'Unknown_Playlist')
     except Exception as e:
         print(f"Error accessing playlist: {e}")
         return f"Error: Could not access playlist {ep_playlist_id}"
@@ -94,43 +110,43 @@ def cycle(use_debug=True, output_dir="outputs"):
     trackdata = []
     
     # Open files for writing
-    file_monthly_pl_json = open(Path(output_dir) / f"{playlist_name}_{date}.json", 'w')
-    file_monthly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{date}.csv", 'a')
+    # file_monthly_pl_json = open(Path(output_dir) / f"{playlist_name}_{date}.json", 'w')
+    # file_monthly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{date}.csv", 'a')
     file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
     
     try:
         # Write JSON dump
-        json.dump(ep_playlist_month, file_monthly_pl_json, indent=4)
+        # json.dump(ep_playlist_month, file_monthly_pl_json, indent=4)
         
         # Process tracks
-        for track in ep_playlist_month.get("tracks", {}).get("items", []):
-            if track.get("track") is None:
-                print("Found a track with value None")
-                continue
+        for track in ep_playlist_month:
+            # if track.get("track") is None:
+            #     print("Found a track with value None")
+            #     continue
             
-            json_to_csv_fields = [
-                track["track"]["name"],
-                track["track"]["album"]["name"],
-                track["track"]["album"]["artists"][0]["name"],
-                track["added_by"]["id"],
-                track["added_at"],
-                track["track"]["id"],
-            ]
+            # json_to_csv_fields = [
+            #     track["track"]["name"],
+            #     track["track"]["album"]["name"],
+            #     track["track"]["album"]["artists"][0]["name"],
+            #     track["added_by"]["id"],
+            #     track["added_at"],
+            #     track["track"]["id"],
+            # ]
             
-            trackdata.append(json_to_csv_fields)
-            track_id_month.append(json_to_csv_fields[-1])
+            #trackdata.append(track)
+            track_id_month.append(track['Track ID'])
             discord_song_output += (
-                f"{usernameFixer(track['added_by']['id'])} - "
-                f"{track['track']['name']} by "
-                f"{track['track']['album']['artists'][0]['name']}\n"
+                f"{usernameFixer(track['Added By'])} - "
+                f"{track['Track']} by "
+                f"{track['Artist']}\n"
             )
         
         # Write CSV files
         try:
             _write_csv_file(file_yearly_pl_csv, trackdata)
             print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
-            _write_csv_file(file_monthly_pl_csv, trackdata)
-            print(f"CSV files written successfully to {file_monthly_pl_csv.name}")
+            # _write_csv_file(file_monthly_pl_csv, trackdata)
+            # print(f"CSV files written successfully to {file_monthly_pl_csv.name}")
         except Exception as e:
             print(f"Error writing CSV files: {e}")
             
@@ -150,8 +166,8 @@ def cycle(use_debug=True, output_dir="outputs"):
         
     finally:
         # Clean up file handles
-        file_monthly_pl_json.close()
-        file_monthly_pl_csv.close()
+        # file_monthly_pl_json.close()
+        #file_monthly_pl_csv.close()
         file_yearly_pl_csv.close()
 
 def _write_csv_file(file_handle, trackdata):
@@ -293,9 +309,16 @@ def addSong(song_id, ep_playlist_id='', use_debug=False):
     return 'You did this to yourself'
 
 def main():
+
+    test = SpotipyAuth()
     """Main function for direct script execution."""
     choices = ['Cycle Debug Playlist',
-               'Test CSV Data',]
+                'Test CSV Data',
+                'Get Debug Playlist Tracks (Full)',
+                'Get Debug Playlist Tracks(Interesting Fields Only)',
+                'Get Live Playlist Tracks',
+                'Get Live Playlist Tracks (Interesting Fields Only)']
+    
     selected = questionary.select(
         "Please choose an option:",
         choices=choices
@@ -305,6 +328,26 @@ def main():
         cycle(use_debug=True)
     elif selected == 'Test CSV Data':
         print(yearly_data_by_user(use_debug=True))
+    elif selected == 'Get Debug Playlist Tracks':
+        get_environment_config(use_debug=True)
+        tracks = test.get_tracks_from_playlist(os.getenv("DEBUG_MONTHLY_PLAYLIST"))
+        pprint(tracks)
+    elif selected == 'Get Debug Playlist Tracks(Interesting Fields Only)':
+        get_environment_config(use_debug=True)
+        tracks = test.get_simplified_playlist_info(os.getenv("DEBUG_MONTHLY_PLAYLIST"))
+        pprint(tracks)
+    elif selected == 'Get Live Playlist Tracks':
+        get_environment_config(use_debug=False)
+        tracks = test.get_tracks_from_playlist(os.getenv("LIVE_MONTHLY_PLAYLIST"))
+        pprint(tracks)
+    elif selected == 'Get Live Playlist Tracks (Interesting Fields Only)':
+        get_environment_config(use_debug=False)
+        tracks = test.get_simplified_playlist_info(os.getenv("LIVE_MONTHLY_PLAYLIST"))
+        pprint(tracks)
+
+
+
+
 
 if __name__ == '__main__':
     main()

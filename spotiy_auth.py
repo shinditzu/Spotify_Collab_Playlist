@@ -59,35 +59,30 @@ class SpotipyAuth:
             results = self.sp.next(results)
             tracks.extend(results['items'])
         return tracks   
-        
+    
+    def get_simplified_playlist_info(self, playlist_id):
+        """
+        Given a track object from Spotify API, return a simplified dictionary with key info.
+        """
+        playlist_tracks = self.get_tracks_from_playlist(playlist_id)
+        output_list = []
 
-def get_environment_config(use_debug=True):
-    """
-    Get environment configuration based on debug/live setting.
-    
-    Args:
-        use_debug (bool): If True, use debug environment. If False, use live environment.
-    
-    Returns:
-        dict: Configuration dictionary with playlist IDs and Discord channel
-    """
-    if use_debug:
-        print("Using Debug Environment")
-        return {
-            "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
-            "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
-            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
-            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
-        }
-    else:
-        print("Using Live Environment")
-        return {
-            "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
-            "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
-            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
-            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
-        }
-    
+        for track in playlist_tracks: 
+            if track.get("track") is None:
+                print("Found a track with value None")
+                continue
+            
+            interesting_track_fields = {
+                "Track":track["track"]["name"],
+                "Album":track["track"]["album"]["name"],
+                "Artist":track["track"]["album"]["artists"][0]["name"],
+                "Added By":track["added_by"]["id"],
+                "Time Added":track["added_at"],
+                "Track ID":track["track"]["id"],
+            }
+            output_list.append(interesting_track_fields)
+        return output_list
+        
 
 class SpotifyBotAuth:
     def __init__(self):
@@ -127,7 +122,8 @@ def main():
     #pprint(test.sp.track("2S4CfxZG29GZWwDeMtBq2R"))
 
     """Main function for direct script execution."""
-    choices = ['Test Auth', 'Get Playlist Tracks']
+    choices = ['Test Auth', 
+]
 
     selected = questionary.select(
         "Please choose an option:",
@@ -136,11 +132,8 @@ def main():
 
     if selected == 'Test Auth':
         pprint(test.sp.current_user())
-    elif selected == 'Get Debug Playlist Tracks':
-        get_environment_config(use_debug=True)
-        tracks = test.get_tracks_from_playlist(os.getenv("DEBUG_MONTHLY_PLAYLIST"))
-        pprint(tracks)
-    
+
+
 
 if __name__ == '__main__':
     main()       
