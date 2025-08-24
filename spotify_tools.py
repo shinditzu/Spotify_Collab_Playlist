@@ -12,10 +12,15 @@ import time
 import dotenv
 from spotipy.oauth2 import SpotifyOAuth
 from pprint import pprint
-from earp_auth import SpotipyAuth
+from spotiy_auth import SpotipyAuth
 import discord_announce_v2
+import questionary
 
 dotenv.load_dotenv()
+
+# Get current date strings
+date = datetime.datetime.now().strftime('%Y_%m')
+year = datetime.datetime.now().strftime('%Y')
 
 def get_environment_config(use_debug=True):
     """
@@ -32,15 +37,51 @@ def get_environment_config(use_debug=True):
         return {
             "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
             "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
-            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0"))
+            "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
+            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
         }
     else:
         print("Using Live Environment")
         return {
             "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
             "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
-            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0"))
+            "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
+            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
         }
+    
+def yearly_data_by_user(use_debug=True):
+    #config = get_environment_config(use_debug)
+
+    with open("outputs/Ear Porn!!_2025.csv", newline="") as yearly_csvfile:
+        reader = csv.DictReader(yearly_csvfile)
+        yearly_data = [row for row in reader]
+
+    # Song Dicts by User
+    user_songs = {}
+    for row in yearly_data:
+        user_id = usernameFixer(row["Added By"])
+        if user_id not in user_songs:
+            user_songs[user_id] = []
+        user_songs[user_id].append(row)
+
+    #pprint(user_songs.keys())
+    return user_songs
+
+def query_monthly_data_from_spotify(use_debug=True):
+        config = get_environment_config(use_debug)
+        sfquery = SpotipyAuth()
+        ep_playlist_id = config["monthly_playlist"]
+
+        try:
+            ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
+            if not ep_playlist_month:
+                raise ValueError(f"Could not access playlist: {ep_playlist_id}")
+            return ep_playlist_month
+        except Exception as e:
+            print(f"Error accessing playlist: {e}")
+            return None
+        
+
 
 def cycle(use_debug=True, output_dir="outputs"):
     """
@@ -65,10 +106,6 @@ def cycle(use_debug=True, output_dir="outputs"):
     # Validate configuration
     if not ep_playlist_id or not ep_playlist_year:
         raise ValueError("Missing required playlist IDs in environment variables")
-    
-    # Get current date strings
-    date = datetime.datetime.now().strftime('%Y_%m')
-    year = datetime.datetime.now().strftime('%Y')
     
     # Get playlist data
     try:
@@ -292,7 +329,17 @@ def addSong(song_id, ep_playlist_id='', use_debug=False):
 
 def main():
     """Main function for direct script execution."""
-    cycle(use_debug=True)
+    choices = ['Cycle Debug Playlist',
+               'Test CSV Data',]
+    selected = questionary.select(
+        "Please choose an option:",
+        choices=choices
+    ).ask()
+
+    if selected == 'Cycle Debug Playlist':
+        cycle(use_debug=True)
+    elif selected == 'Test CSV Data':
+        print(yearly_data_by_user(use_debug=True))
 
 if __name__ == '__main__':
     main()

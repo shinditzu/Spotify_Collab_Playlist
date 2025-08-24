@@ -1,5 +1,5 @@
 from datetime import date, timedelta, datetime
-from earp_cycle_monthly import cycle
+from spotify_tools import cycle
 import schedule
 import time
 import calendar

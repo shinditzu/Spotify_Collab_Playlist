@@ -4,9 +4,9 @@ import os
 import json
 from pathlib import Path
 import logging
-from earp_cycle_monthly import listContributers
-from earp_cycle_monthly import addBubbleButt
-from earp_cycle_monthly import addSong
+from spotify_tools import listContributers
+from spotify_tools import addBubbleButt
+from spotify_tools import addSong
 from dotenv import load_dotenv
 
 load_dotenv()
