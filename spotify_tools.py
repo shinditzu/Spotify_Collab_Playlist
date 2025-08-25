@@ -16,6 +16,7 @@ from spotiy_auth import SpotipyAuth
 import discord_announce_v2
 import questionary
 from bot_tools import ai_monthly_commentary
+import calendar
 
 dotenv.load_dotenv()
 
@@ -140,7 +141,7 @@ def cycle(use_debug=True, output_dir="outputs"):
     
     # Initialize variables
     track_id_month = []
-    discord_song_output = "**Last Month's Recap**\n**------------------**\n>>> "
+    discord_song_output = f"**{calendar.month_name[current_month]} Recap**\n**------------------**\n>>> "
     trackdata = []
     
     # Open files for writing
