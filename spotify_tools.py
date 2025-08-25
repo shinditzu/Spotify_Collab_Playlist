@@ -303,7 +303,7 @@ def listContributers(ep_playlist_id='', use_debug=False):
     ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
     
     userSongCount = {}
-    output = ''
+    output = f'**{calendar.month_name[int(current_month)]} Playlist Contributors**\n**------------------**\n>>> '
     un_length=0
     for track in ep_playlist_month["tracks"]["items"]:
         # userSongCount.setdefault(track["added_by"]["id"],0)
