@@ -141,7 +141,7 @@ def cycle(use_debug=True, output_dir="outputs"):
     
     # Initialize variables
     track_id_month = []
-    discord_song_output = f"**{calendar.month_name[current_month]} Recap**\n**------------------**\n>>> "
+    discord_song_output = f"**{calendar.month_name[int(current_month)]} {playlist_name} Recap**\n**------------------**\n>>> "
     trackdata = []
     
     # Open files for writing
