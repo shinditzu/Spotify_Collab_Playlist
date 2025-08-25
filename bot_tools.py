@@ -31,7 +31,8 @@ def ai_monthly_commentary(song_data, tone="straightforward"):
                         - Style: {tone}.
                         - Output EXACTLY three sentences.
                         - Be specific: reference patterns (e.g., novelty, internet humor, classic rock, soulful/nostalgic picks, etc).
-                        - Avoid emojis. Keep it warm, tight, and readable."""
+                        - Avoid emojis. Keep it warm, tight, and readable.
+                        - Avoid "This User" or "The User". Use "You" instead.
 
                         "USER DATA:"
                         f"{song_data[user]}"
