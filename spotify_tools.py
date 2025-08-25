@@ -35,7 +35,7 @@ def get_environment_config(use_debug=True):
             "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
             "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
             "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
-            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
+            "yearly_data": 'outputs/EP_test_2025'
         }
     else:
         print("Using Live Environment")
@@ -43,7 +43,7 @@ def get_environment_config(use_debug=True):
             "monthly_playlist": os.getenv("LIVE_MONTHLY_PLAYLIST", ""),
             "yearly_playlist": os.getenv("LIVE_YEARLY_PLAYLIST", ""),
             "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
-            #"yearly_data": csv.DictReader('outputs/EP_test_2025')
+            "yearly_data": "outputs/Ear Porn!!_2025.csv"
         }
 
 # Get current date strings
@@ -70,9 +70,9 @@ current_month = datetime.datetime.now().strftime('%m')
 #     return user_songs
 
 def parse_yearly_data_by_user(use_debug=True, month_filter=None):
-    #config = get_environment_config(use_debug)
+    config = get_environment_config(use_debug)
 
-    with open("outputs/Ear Porn!!_2025.csv", newline="") as yearly_csvfile:
+    with open(config["yearly_data"], newline="") as yearly_csvfile:
         reader = csv.DictReader(yearly_csvfile)
         if month_filter:
             track_list = [row for row in reader if row["Time Added"].startswith(f"{year}-{month_filter:02d}")]
@@ -133,19 +133,17 @@ def cycle(use_debug=True, output_dir="outputs"):
         return f"Error: Could not access playlist {ep_playlist_id}"
     
     # Initialize Discord bot
-    discord_bot = discord_announce_v2.DiscordBot()
+    
     
     # Create output directory if it doesn't exist
     # Path(output_dir).mkdir(exist_ok=True)
     
     # Initialize variables
     track_id_month = []
-    discord_song_output = "Last Month's Recap\n------------------\n"
+    discord_song_output = "**Last Month's Recap**\n**------------------**\n>>> "
     trackdata = []
     
     # Open files for writing
-    # file_monthly_pl_json = open(Path(output_dir) / f"{playlist_name}_{date}.json", 'w')
-    # file_monthly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{date}.csv", 'a')
     file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
     
     try:
@@ -170,9 +168,7 @@ def cycle(use_debug=True, output_dir="outputs"):
             #trackdata.append(track)
             track_id_month.append(track['Track ID'])
             discord_song_output += (
-                f"{usernameFixer(track['Added By'])} - "
-                f"{track['Track']} by "
-                f"{track['Artist']}\n"
+                f"{usernameFixer(track['Added By'])} - {track['Track']} by {track['Artist']}\n"
             )
         
         # Write CSV files
@@ -193,15 +189,14 @@ def cycle(use_debug=True, output_dir="outputs"):
         if use_debug:
             debugCycle(ep_playlist_id, sfquery)
         
-        # Send Discord announcement
-        discordAnnouncer(discord_bot, discord_bot_output_channel, discord_song_output)
-        
-        return discord_song_output
+        # Send Basic Discord announcement
+        discordAnnouncer(discord_bot_output_channel, discord_song_output)
+
+        #Send AI generated commentary to Discord
+        AI_Commentary(use_debug, time_filter='Previous_Month')
+        #discordAnnouncer(discord_bot, discord_bot_output_channel, ai_song_output)
         
     finally:
-        # Clean up file handles
-        # file_monthly_pl_json.close()
-        #file_monthly_pl_csv.close()
         file_yearly_pl_csv.close()
 
 def _write_csv_file(file_handle, trackdata):
@@ -219,11 +214,13 @@ def _write_csv_file(file_handle, trackdata):
         print(f"Writing trackdata to {file_handle.name}")
         writer.writerows(trackdata)
 
-def discordAnnouncer(discord_bot, discord_channel, text=''):
+def discordAnnouncer(use_debug=True, text=''):
+    config = get_environment_config(use_debug)
+    discord_bot = discord_announce_v2.DiscordBot()
     """Send message to Discord channel."""
     for part in split_multiline_string(text):
         print(part)
-        discord_bot.send(discord_channel, part)
+        discord_bot.send(config["discord_channel"], part)
 
 def debugCycle(ep_playlist_id, sfquery):
     """Add debug tracks to the playlist."""
@@ -319,7 +316,7 @@ def listContributers(ep_playlist_id='', use_debug=False):
         
     #original output style
     for user in userSongCount:
-        output += user + ' contributed ' + str(userSongCount[user]) + " songs" + "\n"
+        output += f"{user} contributed {(userSongCount[user])} songs\n"
     return (output)
 
 def addBubbleButt(ep_playlist_id='', use_debug=False):
@@ -342,6 +339,54 @@ def addSong(song_id, ep_playlist_id='', use_debug=False):
     sfquery.sp.playlist_add_items(ep_playlist_id, [song_id])
     return 'You did this to yourself'
 
+def AI_Commentary(use_debug=True, time_filter='Current_Month', month=None):
+    '''
+    Generate AI commentary based on user data and time filter.
+    Args:
+        use_debug (bool): If True, use debug environment. If False, use live environment.
+        time_filter (str): One of 'Year', 'Specific_Month', 'Current_Month', 'Previous_Month'.
+        month (int, optional): Month (1-12) if time_filter is 'Specific_Month'.
+    '''
+    # Validate time_filter and month args.
+    time_filter_options = ['Year', 'Specific_Month', 'Current_Month', 'Previous_Month']
+    if time_filter not in time_filter_options:
+        raise ValueError(f"time_filter must be one of {time_filter_options}")
+    elif time_filter == 'Specific_Month' and month is None:
+        raise ValueError("month must be provided when time_filter is 'Specific_Month'")
+    elif time_filter == 'Specific_Month' and month is not None and (month < 1 or month > 12):
+        raise ValueError("month must be between 1 and 12")
+
+    # Get user data based on time filter
+    if time_filter == 'Year':
+        print("Using full year data")
+        user_data = parse_yearly_data_by_user(use_debug)
+        ai_responses=ai_monthly_commentary(user_data)
+
+    elif time_filter == 'Specific_Month' and month is not None:
+        print(f"Using specific month: {month}")
+        user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
+        ai_responses=ai_monthly_commentary(user_data)
+
+    elif time_filter == 'Current_Month':
+        month = int(current_month)
+        print(f"Using current month: {month}")
+        user_data = parse_yearly_data_by_user(use_debug=False, month_filter=month)
+        ai_responses=ai_monthly_commentary(user_data)
+
+    elif time_filter == 'Previous_Month':
+        month = int(current_month) - 1
+        print(f"Using previous month: {month}")
+        if month == 0:
+            month = 12
+        user_data = parse_yearly_data_by_user(use_debug=False, month_filter=month)
+        ai_responses=ai_monthly_commentary(user_data)
+
+    # Print and send AI responses to Discord
+    pprint(ai_responses)
+    for response in ai_responses:
+        discord_message = f"**AI Commentary for {response['name']}:**\n>>> {response['response']}"
+        discordAnnouncer(use_debug=True, text=discord_message)
+
 def main():
 
     test = SpotipyAuth()
@@ -354,7 +399,8 @@ def main():
                 'Get Live Playlist Tracks (Interesting Fields Only)',
                 'Parse Yearly Data by User',
                 'AI Commentary from CSV Yearly Data',
-                'AI Commentary from This Month\'s Spotify Data',]
+                'AI Commentary from This Month\'s Spotify Data',
+                'Test Discord Formatting',]
     
     selected = questionary.select(
         "Please choose an option:",
@@ -395,14 +441,55 @@ def main():
             user_data = parse_yearly_data_by_user(use_debug=True, month_filter=int(month))
             pprint(user_data)
     elif selected == "AI Commentary from CSV Yearly Data":
-        month = questionary.text("Enter month (1-12):").ask()
-        user_data = parse_yearly_data_by_user(use_debug=True, month_filter=int(month))
-        response=ai_monthly_commentary(user_data)
-        pprint(response)
+        choices = ['Year', 'Specific_Month', 'Current Month', 'Previous Month']
+        selected = questionary.select(
+            "Please choose an option:",
+            choices=choices
+        ).ask()
+        if selected == 'Year':
+            # user_data = parse_yearly_data_by_user(use_debug=False)
+            # response=ai_monthly_commentary(user_data)
+            # pprint(response)
+
+            AI_Commentary(use_debug=False, time_filter='Year')
+
+        elif selected == 'Specific_Month':
+            month = questionary.text("Enter month (1-12):").ask()
+            # if month < 1 or month > 12:
+            #     print("Invalid month. Please enter a value between 1 and 12.")
+            #     return
+            # user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
+            # response=ai_monthly_commentary(user_data)
+            # pprint(response)
+
+            AI_Commentary(use_debug=False, time_filter='Specific_Month', month=int(month))
+
+
+        elif selected == 'Current Month':
+            # month = current_month
+            # print(f"Using current month: {month}")
+            # user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
+            # response=ai_monthly_commentary(user_data)
+            # pprint(response)
+            AI_Commentary(use_debug=False, time_filter='Current_Month')
+        elif selected == 'Previous Month':
+            # month = int(current_month) - 1
+            # print(f"Using previous month: {month}")
+            # if month == 0:
+            #     month = 12
+            # user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
+            # ai_responses=ai_monthly_commentary(user_data)
+            # pprint(ai_responses)
+            # for response in ai_responses:
+            #     discord_message = f"**AI Commentary for {response['name']}:**\n>>> {response['response']}"
+            #     discordAnnouncer(use_debug=True, text=discord_message)
+            AI_Commentary(use_debug=False, time_filter='Previous_Month')
+            
+            
     elif selected == 'AI Commentary from This Month\'s Spotify Data': 
+        #i dont know if i care to flesh this one out more unless i want to run it live
         get_environment_config(use_debug=False)
         user_data=test.get_simplified_playlist_info(os.getenv("LIVE_MONTHLY_PLAYLIST"))
-
         user_songs = {}
         for row in user_data:
             user_id = usernameFixer(row["Added By"])
@@ -414,8 +501,69 @@ def main():
         pprint(user_songs)
         response=ai_monthly_commentary(user_songs)
         pprint(response)
-
-
+    elif selected == 'Test Discord Formatting': 
+        test_ai_responses =  [{'name': 'Tré',
+                            'response': 'This user has a musical taste that is both diverse and '
+                                        'nostalgic, with a mix of classic tracks and contemporary '
+                                        'novelty tunes. With selections like "Moon River" by Audrey '
+                                        'Hepburn and "Pretty Little Baby" by Connie Francis, they '
+                                        'showcase an appreciation for timeless melodies and soulful '
+                                        'performances. At the same time, tracks like "DONTTRUSTME" by '
+                                        '3OH!3 and "Hiphopopotamus vs. Rhymenoceros" by Flight of the '
+                                        'Conchords indicate a fondness for internet humor and playful, '
+                                        'modern sounds.'},
+                            {'name': 'Keri',
+                            'response': "The user's music selection reveals a penchant for classic "
+                                        'tracks that evoke both nostalgia and timeless appeal. By '
+                                        'choosing "Dreams" by The Cranberries, they showcase an '
+                                        'appreciation for 90s alternative rock with its ethereal and '
+                                        'emotive sound. Additionally, "Season of the Witch" by Donovan '
+                                        'highlights their taste for iconic, psychedelic influences from '
+                                        'the 1960s, suggesting a fondness for music that bridges past '
+                                        'eras with lasting impact.'},
+                            {'name': 'Jenny',
+                            'response': 'This user exhibits a penchant for ethereal and evocative music, '
+                                        'as evidenced by their preference for artists such as Enya and '
+                                        'Howard Shore, known for their enchanting soundscapes. '
+                                        "Additionally, the selection of tracks like KALEO's stripped "
+                                        "version and Rose Betts' offerings reveal an appreciation for "
+                                        'soulful and expressive vocals that touch upon nostalgia and '
+                                        'introspection. This taste is rounded out with a nod to the '
+                                        'cinematic and atmospheric, illustrated by their interest in '
+                                        'Lofi adaptations of iconic movie scores.'},
+                            {'name': 'Jack',
+                            'response': "Arshling's musical taste showcases a preference for electronic "
+                                        'and experimental sounds, as evidenced by selections like Purity '
+                                        'Ring\'s "many lives" and Whethan\'s "ENERGY." There\'s a strong '
+                                        'inclination towards tracks that feature innovative production '
+                                        'and modern pop elements, with artists like Weval and Jockstrap '
+                                        'reflecting this contemporary and avant-garde approach. '
+                                        'Furthermore, the inclusion of Kesha\'s "ATTENTION!" and '
+                                        'bbno$\'s "1-800" also suggests a fondness for internet humor '
+                                        'and trends, blending catchy hooks with a playful, irreverent '
+                                        'style.'},
+                            {'name': 'Alex',
+                            'response': "The user's musical taste showcases a preference for eclectic "
+                                        'and indie sounds, with a mix of both uplifting and '
+                                        'introspective tracks. Artists like AJJ and Pavement suggest a '
+                                        'proclivity for indie and alternative rock, while selections '
+                                        'from BUSDRIVER and Remi Wolf introduce elements of experimental '
+                                        'and live performance nuances. There is also an appreciation for '
+                                        'singer-songwriters, as evidenced by picks from Lola Young and '
+                                        'Mikayla Geier, indicating an ear for soulful and intimate '
+                                        'storytelling in music.'},
+                            {'name': 'Sarah',
+                            'response': "The user's musical taste reflects a strong affinity for classic "
+                                        'rock, with a noticeable appreciation for the timelessness and '
+                                        'energy of the genre. Additionally, there is an embrace of '
+                                        'soulful, nostalgic picks, highlighting a deep connection to '
+                                        'music that stirs emotion and memory. This blend of classic rock '
+                                        'and soulful nostalgia suggests a preference for music that both '
+                                        'invigorates and soothes, tapping into the rich history of '
+                                        'sound.'}]
+        for response in test_ai_responses:
+                discord_message = f"**AI Commentary for {response['name']}:**\n>>> {response['response']}"
+                discordAnnouncer(use_debug=True, text=discord_message)
 
 
 if __name__ == '__main__':

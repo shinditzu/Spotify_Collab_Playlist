@@ -61,7 +61,8 @@ def ai_monthly_commentary(song_data, tone=tone_list[2]):
                 }
             ]
         )
-        response_content.append({user: response.choices[0].message.content})
+        response_content.append({'name': user,
+                                 'response': response.choices[0].message.content})
     return response_content
 
 def main():
