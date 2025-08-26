@@ -35,7 +35,7 @@ def job():
         print(f"Today is {today} time is {now.strftime('%H:%M')}, not the last day of the month. Running debug flow.")
         cycle(use_debug=True,write_csv=False)
 
-schedule.every(1).day.at("00:05", tz).do(job)
+schedule.every(1).day.at("00:05", str(tz)).do(job)
 #schedule.every(1).minute.do(job)
 
 while True:

@@ -127,8 +127,12 @@ def cycle(use_debug=True, output_dir="outputs",write_csv=True):
         ep_playlist_month = sfquery.get_simplified_playlist_info(ep_playlist_id)
         if not ep_playlist_month:
             raise ValueError(f"Could not access playlist: {ep_playlist_id}")
+            
         #playlist_name = ep_playlist_month.get('name', 'Unknown_Playlist')
-        playlist_name = sfquery.sp.playlist(ep_playlist_id).get('name', 'Unknown_Playlist')
+        playlist_data = sfquery.sp.playlist(ep_playlist_id)
+        if not playlist_data:
+            raise ValueError(f"Could not retrieve playlist data for: {ep_playlist_id}")
+        playlist_name = playlist_data.get('name', 'Unknown_Playlist')#Returns "Unknown_Playlist" if 'name' key is missing
     except Exception as e:
         print(f"Error accessing playlist: {e}")
         return f"Error: Could not access playlist {ep_playlist_id}"
@@ -289,6 +293,10 @@ def listContributers(ep_playlist_id='', use_debug=False):
 
     sfquery = SpotipyAuth()
     ep_playlist_month = sfquery.sp.playlist(ep_playlist_id)
+    
+    # Check if playlist data was retrieved successfully
+    if not ep_playlist_month or "tracks" not in ep_playlist_month:
+        return "Error: Could not retrieve playlist data or playlist is empty"
     
     userSongCount = {}
     output = f'**{calendar.month_name[int(current_month)]} Playlist Contributors**\n**------------------**\n>>> '
