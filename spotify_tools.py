@@ -385,7 +385,7 @@ def AI_Commentary(use_debug=True, time_filter='Current_Month', month=None):
     # Print and send AI responses to Discord
     pprint(ai_responses)
     for response in ai_responses:
-        discord_message = f"**AI Commentary for {response['name']}:**\n>>> {response['response']}"
+        discord_message = f"**Unsolicited AI Commentary for {response['name']}:**\n>>> {response['response']}"
         discordAnnouncer(use_debug=True, text=discord_message)
 
 def main():
