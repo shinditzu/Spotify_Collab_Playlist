@@ -26,14 +26,14 @@ def job():
 
     if today == firstday:
         print(f"Today is {today} time is {now.strftime('%H:%M')}, the first day of the month. I just cycled the live playlist.")
-        cycle(use_debug=False)
+        cycle(use_debug=False, write_csv=False)
 
     elif today == lastday:
         print(f"Today is {today} time is {now.strftime('%H:%M')}, the last day of the month. I'm going to cycle the live list tomorrow.")
         cycle(use_debug=True)
     else:
         print(f"Today is {today} time is {now.strftime('%H:%M')}, not the last day of the month. Running debug flow.")
-        cycle(use_debug=True)
+        cycle(use_debug=True,write_csv=False)
 
 schedule.every(1).day.at("00:05", tz).do(job)
 #schedule.every(1).minute.do(job)

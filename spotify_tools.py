@@ -108,7 +108,7 @@ def query_this_months_data_from_spotify(use_debug=True):
     return user_songs
 
 
-def cycle(use_debug=True, output_dir="outputs"):
+def cycle(use_debug=True, output_dir="outputs",write_csv=True):
     # Initialize Spotify query object
     sfquery = SpotipyAuth()
     
@@ -148,23 +148,9 @@ def cycle(use_debug=True, output_dir="outputs"):
     file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
     
     try:
-        # Write JSON dump
-        # json.dump(ep_playlist_month, file_monthly_pl_json, indent=4)
-        
-        # Process tracks
+
+        # Grab Track info from monthly playlist. Write to CSV and Prep discord output.
         for track in ep_playlist_month:
-            # if track.get("track") is None:
-            #     print("Found a track with value None")
-            #     continue
-            
-            # json_to_csv_fields = [
-            #     track["track"]["name"],
-            #     track["track"]["album"]["name"],
-            #     track["track"]["album"]["artists"][0]["name"],
-            #     track["added_by"]["id"],
-            #     track["added_at"],
-            #     track["track"]["id"],
-            # ]
             
             #trackdata.append(track)
             track_id_month.append(track['Track ID'])
@@ -173,13 +159,15 @@ def cycle(use_debug=True, output_dir="outputs"):
             )
         
         # Write CSV files
-        try:
-            _write_csv_file(file_yearly_pl_csv, trackdata)
-            print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
-            # _write_csv_file(file_monthly_pl_csv, trackdata)
-            # print(f"CSV files written successfully to {file_monthly_pl_csv.name}")
-        except Exception as e:
-            print(f"Error writing CSV files: {e}")
+        if write_csv:
+            try:
+                _write_csv_file(file_yearly_pl_csv, trackdata)
+                print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
+
+            except Exception as e:
+                print(f"Error writing CSV files: {e}")
+        elif not write_csv:
+            print("Skipping CSV write as per configuration.")
             
         # Playlist manipulation
         if track_id_month:
@@ -447,43 +435,18 @@ def main():
             "Please choose an option:",
             choices=choices
         ).ask()
+        
         if selected == 'Year':
-            # user_data = parse_yearly_data_by_user(use_debug=False)
-            # response=ai_monthly_commentary(user_data)
-            # pprint(response)
-
             AI_Commentary(use_debug=False, time_filter='Year')
 
         elif selected == 'Specific_Month':
             month = questionary.text("Enter month (1-12):").ask()
-            # if month < 1 or month > 12:
-            #     print("Invalid month. Please enter a value between 1 and 12.")
-            #     return
-            # user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
-            # response=ai_monthly_commentary(user_data)
-            # pprint(response)
-
             AI_Commentary(use_debug=False, time_filter='Specific_Month', month=int(month))
 
-
         elif selected == 'Current Month':
-            # month = current_month
-            # print(f"Using current month: {month}")
-            # user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
-            # response=ai_monthly_commentary(user_data)
-            # pprint(response)
             AI_Commentary(use_debug=False, time_filter='Current_Month')
+
         elif selected == 'Previous Month':
-            # month = int(current_month) - 1
-            # print(f"Using previous month: {month}")
-            # if month == 0:
-            #     month = 12
-            # user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
-            # ai_responses=ai_monthly_commentary(user_data)
-            # pprint(ai_responses)
-            # for response in ai_responses:
-            #     discord_message = f"**AI Commentary for {response['name']}:**\n>>> {response['response']}"
-            #     discordAnnouncer(use_debug=True, text=discord_message)
             AI_Commentary(use_debug=False, time_filter='Previous_Month')
             
             
