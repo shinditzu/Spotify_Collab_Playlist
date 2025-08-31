@@ -40,5 +40,10 @@ schedule.every(1).day.at("00:05", str(tz)).do(job)
 
 while True:
     print(f"{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}. Checking if it's time to run the job...")
+    print(f"today is {today}, lastday is {lastday}, firstday is {firstday}, current time is {time.strftime('%H:%M', current_time)}")
+
     schedule.run_pending() #check for jobs to run.
     time.sleep(60) #sleep for 60 seconds
+
+
+
