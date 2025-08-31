@@ -36,7 +36,7 @@ def get_environment_config(use_debug=True):
             "monthly_playlist": os.getenv("DEBUG_MONTHLY_PLAYLIST", ""),
             "yearly_playlist": os.getenv("DEBUG_YEARLY_PLAYLIST", ""),
             "discord_channel": int(os.getenv("DEBUG_DISCORD_CHANNEL", "0")),
-            "yearly_data": 'outputs/EP_test_2025'
+            "yearly_data": 'outputs/EP_test_2025.csv'
         }
     else:
         print("Using Live Environment")
@@ -356,7 +356,7 @@ def AI_Commentary(use_debug=True, time_filter='Current_Month', month=None):
     # Get user data based on time filter
     if time_filter == 'Year':
         print("Using full year data")
-        user_data = parse_yearly_data_by_user(use_debug)
+        user_data = parse_yearly_data_by_user(use_debug=False)
         ai_responses=ai_monthly_commentary(user_data)
 
     elif time_filter == 'Specific_Month' and month is not None:
@@ -380,9 +380,12 @@ def AI_Commentary(use_debug=True, time_filter='Current_Month', month=None):
 
     # Print and send AI responses to Discord
     pprint(ai_responses)
+    discord_message = f"**Unsolicited AI Commentary:**\n**------------------**\n>>> Did you know that the EarPorn Bot has an AI commentary feature?"
+    discordAnnouncer(use_debug, text=discord_message)
+
     for response in ai_responses:
-        discord_message = f"**Unsolicited AI Commentary for {response['name']}:**\n>>> {response['response']}"
-        discordAnnouncer(use_debug=True, text=discord_message)
+        discord_message = f"**{response['name']}:**\n>>> {response['response']}**"
+        discordAnnouncer(use_debug, text=discord_message)
 
 def main():
 
