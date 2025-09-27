@@ -70,6 +70,17 @@ current_month = datetime.datetime.now().strftime('%m')
 #     #pprint(user_songs.keys())
 #     return user_songs
 
+def parse_yearly_data(use_debug=True, month_filter=None):
+    config = get_environment_config(use_debug)
+
+    with open(config["yearly_data"], newline="") as yearly_csvfile:
+        reader = csv.DictReader(yearly_csvfile)
+        if month_filter:
+            track_list = [row for row in reader if row["Time Added"].startswith(f"{year}-{month_filter:02d}")]
+        else:
+            track_list = [row for row in reader]
+    return track_list
+
 def parse_yearly_data_by_user(use_debug=True, month_filter=None):
     config = get_environment_config(use_debug)
 
@@ -107,6 +118,48 @@ def query_this_months_data_from_spotify(use_debug=True):
             user_songs[user_id].append(row)
     return user_songs
 
+def write_songs_to_yearly_csv(use_debug=True, output_dir="outputs"): #TODO make this work. 
+    # Initialize Spotify query object
+    sfquery = SpotipyAuth()
+    
+    # Get environment configuration
+    config = get_environment_config(use_debug)
+    ep_playlist_id = config["monthly_playlist"]
+
+    
+    # Validate configuration
+    if not ep_playlist_id:
+        raise ValueError("Missing required playlist ID in environment variables")
+    
+    # Get playlist data
+    try:
+        ep_playlist_month = sfquery.get_simplified_playlist_info(ep_playlist_id)
+        if not ep_playlist_month:
+            raise ValueError(f"Could not access playlist: {ep_playlist_id}")
+            
+        playlist_data = sfquery.sp.playlist(ep_playlist_id)
+        if not playlist_data:
+            raise ValueError(f"Could not retrieve playlist data for: {ep_playlist_id}")
+        playlist_name = playlist_data.get('name', 'Unknown_Playlist')#Returns "Unknown_Playlist" if 'name' key is missing
+
+    except Exception as e:
+        print(f"Error accessing playlist: {e}")
+        return f"Error: Could not access playlist {ep_playlist_id}"
+    
+    trackdata = []
+
+    for track in ep_playlist_month:
+        trackdata.append(track)
+
+    # Open files for writing
+    file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
+    
+    # Write CSV files
+    _write_csv_file(file_yearly_pl_csv, trackdata)
+    print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
+
+
+        
 
 def cycle(use_debug=True, output_dir="outputs",write_csv=True):
     # Initialize Spotify query object
@@ -125,6 +178,7 @@ def cycle(use_debug=True, output_dir="outputs",write_csv=True):
     # Get playlist data
     try:
         ep_playlist_month = sfquery.get_simplified_playlist_info(ep_playlist_id)
+        # ep_playlist_month = parse_yearly_data(use_debug=use_debug, month_filter=int(current_month)-1)
         if not ep_playlist_month:
             raise ValueError(f"Could not access playlist: {ep_playlist_id}")
             
@@ -146,51 +200,52 @@ def cycle(use_debug=True, output_dir="outputs",write_csv=True):
     # Initialize variables
     track_id_month = []
     discord_song_output = f"**{calendar.month_name[int(current_month)]} {playlist_name} Recap**\n**------------------**\n>>> "
-    trackdata = []
     
+    # trackdata = []
+    ##############
     # Open files for writing
-    file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
+    # file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
     
-    try:
+    # try:
 
-        # Grab Track info from monthly playlist. Write to CSV and Prep discord output.
-        for track in ep_playlist_month:
+    #     # Grab Track info from monthly playlist. Write to CSV and Prep discord output.
+    #     for track in ep_playlist_month:
             
-            #trackdata.append(track)
-            track_id_month.append(track['Track ID'])
-            discord_song_output += (
-                f"{usernameFixer(track['Added By'])} - {track['Track']} by {track['Artist']}\n"
-            )
+    #         #trackdata.append(track)
+    #         track_id_month.append(track['Track ID'])
+    #         discord_song_output += (
+    #             f"{usernameFixer(track['Added By'])} - {track['Track']} by {track['Artist']}\n"
+    #         )
         
-        # Write CSV files
-        if write_csv:
-            try:
-                _write_csv_file(file_yearly_pl_csv, trackdata)
-                print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
+    #     # Write CSV files
+    #     if write_csv:
+    #         try:
+    #             _write_csv_file(file_yearly_pl_csv, trackdata)
+    #             print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
 
-            except Exception as e:
-                print(f"Error writing CSV files: {e}")
-        elif not write_csv:
-            print("Skipping CSV write as per configuration.")
-            
-        # Playlist manipulation
-        if track_id_month:
-            sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
-            sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
-        
-        # Debug mode specific actions
-        if use_debug:
-            debugCycle(ep_playlist_id, sfquery)
-        
-        # Send Basic Discord announcement
-        discordAnnouncer(discord_bot_output_channel, discord_song_output)
+    #         except Exception as e:
+    #             print(f"Error writing CSV files: {e}")
+    #     elif not write_csv:
+    #         print("Skipping CSV write as per configuration.")
+    ###############
+    # Playlist manipulation
+    if track_id_month:
+        sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
+        sfquery.sp.playlist_add_items(ep_playlist_year, track_id_month)
+    
+    # Debug mode specific actions
+    if use_debug:
+        debugCycle(ep_playlist_id, sfquery)
+    
+    # Send Basic Discord announcement
+    discordAnnouncer(discord_bot_output_channel, discord_song_output)
 
-        #Send AI generated commentary to Discord
-        AI_Commentary(use_debug, time_filter='Previous_Month')
-        #discordAnnouncer(discord_bot, discord_bot_output_channel, ai_song_output)
+    #Send AI generated commentary to Discord
+    AI_Commentary(use_debug, time_filter='Previous_Month')
+    #discordAnnouncer(discord_bot, discord_bot_output_channel, ai_song_output)
         
-    finally:
-        file_yearly_pl_csv.close()
+    # finally:
+    #     file_yearly_pl_csv.close()
 
 def _write_csv_file(file_handle, trackdata):
     """Helper function to write CSV data with headers."""
@@ -205,7 +260,10 @@ def _write_csv_file(file_handle, trackdata):
             writer.writerow(trackdata_headers)
         
         print(f"Writing trackdata to {file_handle.name}")
-        writer.writerows(trackdata)
+        for track in trackdata:
+            row = [track.get(header, "") for header in trackdata_headers]
+            writer.writerow(row)
+
 
 def discordAnnouncer(use_debug=True, text=''):
     config = get_environment_config(use_debug)
@@ -397,9 +455,11 @@ def main():
                 'Get Debug Playlist Tracks(Interesting Fields Only)',
                 'Get Live Playlist Tracks',
                 'Get Live Playlist Tracks (Interesting Fields Only)',
-                'Parse Yearly Data by User',
+                'Parse Yearly Data(Live)',
+                'Parse Yearly Data by User(Live)',
                 'AI Commentary from CSV Yearly Data',
                 'AI Commentary from This Month\'s Spotify Data',
+                'write_songs_to_yearly_csv',
                 'Test Discord Formatting',]
     
     selected = questionary.select(
@@ -427,18 +487,33 @@ def main():
         get_environment_config(use_debug=False)
         tracks = test.get_simplified_playlist_info(os.getenv("LIVE_MONTHLY_PLAYLIST"))
         pprint(tracks)
-    elif selected == "Parse Yearly Data by User":
+    elif selected == "Parse Yearly Data(Live)":
         choices = ['All Time', 'Filter by Month']
         selected = questionary.select(
             "Please choose an option:",
             choices=choices
         ).ask()
         if selected == 'All Time':
-            user_data = parse_yearly_data_by_user(use_debug=True)
+            track_data = parse_yearly_data(use_debug=False)
+            pprint(track_data)
+        elif selected == 'Filter by Month':
+            month = questionary.text("Enter month (1-12):").ask()
+            track_data = parse_yearly_data(use_debug=False, month_filter=int(month))
+            pprint(track_data)
+
+
+    elif selected == "Parse Yearly Data by User(Live)":
+        choices = ['All Time', 'Filter by Month']
+        selected = questionary.select(
+            "Please choose an option:",
+            choices=choices
+        ).ask()
+        if selected == 'All Time':
+            user_data = parse_yearly_data_by_user(use_debug=False)
             pprint(user_data)
         elif selected == 'Filter by Month':
             month = questionary.text("Enter month (1-12):").ask()
-            user_data = parse_yearly_data_by_user(use_debug=True, month_filter=int(month))
+            user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
             pprint(user_data)
     elif selected == "AI Commentary from CSV Yearly Data":
         choices = ['Year', 'Specific_Month', 'Current Month', 'Previous Month']
@@ -476,6 +551,9 @@ def main():
         pprint(user_songs)
         response=ai_monthly_commentary(user_songs)
         pprint(response)
+    elif selected == 'write_songs_to_yearly_csv':
+        write_songs_to_yearly_csv
+        write_songs_to_yearly_csv(use_debug=True)
     elif selected == 'Test Discord Formatting': 
         test_ai_responses =  [{'name': 'Tré',
                             'response': 'This user has a musical taste that is both diverse and '
