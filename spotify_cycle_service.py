@@ -11,15 +11,15 @@ import pytz
 print("Starting Spotify Cycle Service...")
 
 tz = pytz.timezone("America/New_York")
-today = date.today()
-lastday_num = calendar.monthrange(today.year, today.month)[1]
-lastday = date(today.year, today.month, lastday_num)
-firstday = date(today.year, today.month, 1)
-current_time = time.localtime()
 
 def job():
     now = datetime.now(tz)
     today = now.date()
+    
+    # Calculate first and last day of current month
+    firstday = date(today.year, today.month, 1)
+    lastday_num = calendar.monthrange(today.year, today.month)[1]
+    lastday = date(today.year, today.month, lastday_num)
 
     print(f"Job running at {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
@@ -39,8 +39,14 @@ schedule.every(1).day.at("00:15", str(tz)).do(job)
 #schedule.every(1).minute.do(job)
 
 while True:
-    print(f"{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}. Checking if it's time to run the job...")
-    print(f"today is {today}, lastday is {lastday}, firstday is {firstday}, current time is {time.strftime('%H:%M', current_time)}")
+    current_now = datetime.now(tz)
+    current_today = current_now.date()
+    current_firstday = date(current_today.year, current_today.month, 1)
+    current_lastday_num = calendar.monthrange(current_today.year, current_today.month)[1]
+    current_lastday = date(current_today.year, current_today.month, current_lastday_num)
+    
+    print(f"{current_now.strftime('%Y-%m-%d %H:%M')}. Checking if it's time to run the job...")
+    print(f"today is {current_today}, lastday is {current_lastday}, firstday is {current_firstday}, current time is {current_now.strftime('%H:%M')}")
 
     schedule.run_pending() #check for jobs to run.
     time.sleep(60) #sleep for 60 seconds
