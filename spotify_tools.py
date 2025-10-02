@@ -460,7 +460,8 @@ def main():
                 'AI Commentary from CSV Yearly Data',
                 'AI Commentary from This Month\'s Spotify Data',
                 'write_songs_to_yearly_csv',
-                'Test Discord Formatting',]
+                'Test Discord Formatting',
+                "Cycle REAL playlist(DANGER)",]
     
     selected = questionary.select(
         "Please choose an option:",
@@ -469,6 +470,8 @@ def main():
 
     if selected == 'Cycle Debug Playlist':
         cycle(use_debug=True)
+    elif selected == 'Cycle REAL playlist(DANGER)':
+        cycle(use_debug=False)
     elif selected == 'Test CSV Data':
         print(parse_yearly_data_by_user(use_debug=True))
     elif selected == 'Get Debug Playlist Tracks':
