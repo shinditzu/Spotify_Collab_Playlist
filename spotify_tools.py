@@ -201,33 +201,36 @@ def cycle(use_debug=True, output_dir="outputs",write_csv=True):
     track_id_month = []
     discord_song_output = f"**{calendar.month_name[int(current_month)]} {playlist_name} Recap**\n**------------------**\n>>> "
     
-    # trackdata = []
-    ##############
+    trackdata = []
+    #############
     # Open files for writing
-    # file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
+    file_yearly_pl_csv = open(Path(output_dir) / f"{playlist_name}_{year}.csv", 'a')
     
-    # try:
+    try:
 
-    #     # Grab Track info from monthly playlist. Write to CSV and Prep discord output.
-    #     for track in ep_playlist_month:
+        # Grab Track info from monthly playlist. Write to CSV and Prep discord output.
+        for track in ep_playlist_month:
             
-    #         #trackdata.append(track)
-    #         track_id_month.append(track['Track ID'])
-    #         discord_song_output += (
-    #             f"{usernameFixer(track['Added By'])} - {track['Track']} by {track['Artist']}\n"
-    #         )
-        
-    #     # Write CSV files
-    #     if write_csv:
-    #         try:
-    #             _write_csv_file(file_yearly_pl_csv, trackdata)
-    #             print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
+            #trackdata.append(track)
+            track_id_month.append(track['Track ID'])
+            discord_song_output += (
+                f"{usernameFixer(track['Added By'])} - {track['Track']} by {track['Artist']}\n"
+            )
 
-    #         except Exception as e:
-    #             print(f"Error writing CSV files: {e}")
-    #     elif not write_csv:
-    #         print("Skipping CSV write as per configuration.")
-    ###############
+    except Exception as e:
+        print(f"Error accessing playlist: {e}")
+
+        # Write CSV files
+        if write_csv:
+            try:
+                _write_csv_file(file_yearly_pl_csv, trackdata)
+                print(f"CSV files written successfully to {file_yearly_pl_csv.name}")
+
+            except Exception as e:
+                print(f"Error writing CSV files: {e}")
+        elif not write_csv:
+            print("Skipping CSV write as per configuration.")
+    ##############
     # Playlist manipulation
     if track_id_month:
         sfquery.sp.playlist_remove_all_occurrences_of_items(ep_playlist_id, track_id_month)
@@ -471,7 +474,7 @@ def main():
     if selected == 'Cycle Debug Playlist':
         cycle(use_debug=True)
     elif selected == 'Cycle REAL playlist(DANGER)':
-        cycle(use_debug=False)
+        cycle(use_debug=False, write_csv=True)
     elif selected == 'Test CSV Data':
         print(parse_yearly_data_by_user(use_debug=True))
     elif selected == 'Get Debug Playlist Tracks':

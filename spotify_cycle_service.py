@@ -26,7 +26,7 @@ def job():
 
     if today == firstday:
         print(f"Today is {today} time is {now.strftime('%H:%M')}, the first day of the month. I just cycled the live playlist.")
-        cycle(use_debug=True, write_csv=False)
+        cycle(use_debug=False, write_csv=True)
 
     elif today == lastday:
         print(f"Today is {today} time is {now.strftime('%H:%M')}, the last day of the month. I'm going to cycle the live list tomorrow.")
