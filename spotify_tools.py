@@ -47,6 +47,9 @@ def get_environment_config(use_debug=True):
             "yearly_data": "outputs/Ear Porn!!_2025.csv"
         }
 
+debug_discord_channel = int(os.getenv("DEBUG_DISCORD_CHANNEL", "0"))
+live_discord_channel = int(os.getenv("LIVE_DISCORD_CHANNEL", "0"))
+
 # Get current date strings
 date = datetime.datetime.now().strftime('%Y_%m')
 year = datetime.datetime.now().strftime('%Y')
@@ -276,6 +279,14 @@ def discordAnnouncer(use_debug=True, text=''):
         print(part)
         discord_bot.send(config["discord_channel"], part)
 
+def discordAnnouncer_channel(channel=debug_discord_channel, text=''):
+    config = get_environment_config(use_debug)
+    discord_bot = discord_announce_v2.DiscordBot()
+    """Send message to Discord channel."""
+    for part in split_multiline_string(text):
+        print(part)
+        discord_bot.send(config["discord_channel"], part)
+
 def debugCycle(ep_playlist_id, sfquery):
     """Add debug tracks to the playlist."""
     print("Resetting debugging playlist")
@@ -441,7 +452,7 @@ def AI_Commentary(use_debug=True, time_filter='Current_Month', month=None):
 
     # Print and send AI responses to Discord
     pprint(ai_responses)
-    discord_message = f"**Unsolicited AI Commentary:**\n**------------------**\n>>> Did you know that the EarPorn Bot has an AI commentary feature?"
+    discord_message = f"**Unsolicited AI Commentary:**\n**------------------**\n"
     discordAnnouncer(use_debug, text=discord_message)
 
     for response in ai_responses:
@@ -463,7 +474,6 @@ def main():
                 'AI Commentary from CSV Yearly Data',
                 'AI Commentary from This Month\'s Spotify Data',
                 'write_songs_to_yearly_csv',
-                'Test Discord Formatting',
                 "Cycle REAL playlist(DANGER)",]
     
     selected = questionary.select(
@@ -474,7 +484,7 @@ def main():
     if selected == 'Cycle Debug Playlist':
         cycle(use_debug=True)
     elif selected == 'Cycle REAL playlist(DANGER)':
-        cycle(use_debug=False, write_csv=True)
+        cycle(use_debug=False)
     elif selected == 'Test CSV Data':
         print(parse_yearly_data_by_user(use_debug=True))
     elif selected == 'Get Debug Playlist Tracks':
@@ -522,24 +532,32 @@ def main():
             user_data = parse_yearly_data_by_user(use_debug=False, month_filter=int(month))
             pprint(user_data)
     elif selected == "AI Commentary from CSV Yearly Data":
+        choices = ['Live Discord', 'Debug Discord']
+        selected = questionary.select(
+            "Please choose an option:",
+            choices=choices
+        ).ask()
+        if selected == 'Live Discord(Danger)':
+            use_debug=False
+        if selected == 'Debug Discord':
+            use_debug=True
         choices = ['Year', 'Specific_Month', 'Current Month', 'Previous Month']
         selected = questionary.select(
             "Please choose an option:",
             choices=choices
         ).ask()
-        
         if selected == 'Year':
-            AI_Commentary(use_debug=False, time_filter='Year')
+            AI_Commentary(use_debug=use_debug, time_filter='Year')
 
         elif selected == 'Specific_Month':
             month = questionary.text("Enter month (1-12):").ask()
-            AI_Commentary(use_debug=False, time_filter='Specific_Month', month=int(month))
+            AI_Commentary(use_debug=use_debug, time_filter='Specific_Month', month=int(month))
 
         elif selected == 'Current Month':
-            AI_Commentary(use_debug=False, time_filter='Current_Month')
+            AI_Commentary(use_debug=use_debug, time_filter='Current_Month')
 
         elif selected == 'Previous Month':
-            AI_Commentary(use_debug=False, time_filter='Previous_Month')
+            AI_Commentary(use_debug=use_debug, time_filter='Previous_Month')
             
             
     elif selected == 'AI Commentary from This Month\'s Spotify Data': 
@@ -560,69 +578,7 @@ def main():
     elif selected == 'write_songs_to_yearly_csv':
         write_songs_to_yearly_csv
         write_songs_to_yearly_csv(use_debug=True)
-    elif selected == 'Test Discord Formatting': 
-        test_ai_responses =  [{'name': 'Tré',
-                            'response': 'This user has a musical taste that is both diverse and '
-                                        'nostalgic, with a mix of classic tracks and contemporary '
-                                        'novelty tunes. With selections like "Moon River" by Audrey '
-                                        'Hepburn and "Pretty Little Baby" by Connie Francis, they '
-                                        'showcase an appreciation for timeless melodies and soulful '
-                                        'performances. At the same time, tracks like "DONTTRUSTME" by '
-                                        '3OH!3 and "Hiphopopotamus vs. Rhymenoceros" by Flight of the '
-                                        'Conchords indicate a fondness for internet humor and playful, '
-                                        'modern sounds.'},
-                            {'name': 'Keri',
-                            'response': "The user's music selection reveals a penchant for classic "
-                                        'tracks that evoke both nostalgia and timeless appeal. By '
-                                        'choosing "Dreams" by The Cranberries, they showcase an '
-                                        'appreciation for 90s alternative rock with its ethereal and '
-                                        'emotive sound. Additionally, "Season of the Witch" by Donovan '
-                                        'highlights their taste for iconic, psychedelic influences from '
-                                        'the 1960s, suggesting a fondness for music that bridges past '
-                                        'eras with lasting impact.'},
-                            {'name': 'Jenny',
-                            'response': 'This user exhibits a penchant for ethereal and evocative music, '
-                                        'as evidenced by their preference for artists such as Enya and '
-                                        'Howard Shore, known for their enchanting soundscapes. '
-                                        "Additionally, the selection of tracks like KALEO's stripped "
-                                        "version and Rose Betts' offerings reveal an appreciation for "
-                                        'soulful and expressive vocals that touch upon nostalgia and '
-                                        'introspection. This taste is rounded out with a nod to the '
-                                        'cinematic and atmospheric, illustrated by their interest in '
-                                        'Lofi adaptations of iconic movie scores.'},
-                            {'name': 'Jack',
-                            'response': "Arshling's musical taste showcases a preference for electronic "
-                                        'and experimental sounds, as evidenced by selections like Purity '
-                                        'Ring\'s "many lives" and Whethan\'s "ENERGY." There\'s a strong '
-                                        'inclination towards tracks that feature innovative production '
-                                        'and modern pop elements, with artists like Weval and Jockstrap '
-                                        'reflecting this contemporary and avant-garde approach. '
-                                        'Furthermore, the inclusion of Kesha\'s "ATTENTION!" and '
-                                        'bbno$\'s "1-800" also suggests a fondness for internet humor '
-                                        'and trends, blending catchy hooks with a playful, irreverent '
-                                        'style.'},
-                            {'name': 'Alex',
-                            'response': "The user's musical taste showcases a preference for eclectic "
-                                        'and indie sounds, with a mix of both uplifting and '
-                                        'introspective tracks. Artists like AJJ and Pavement suggest a '
-                                        'proclivity for indie and alternative rock, while selections '
-                                        'from BUSDRIVER and Remi Wolf introduce elements of experimental '
-                                        'and live performance nuances. There is also an appreciation for '
-                                        'singer-songwriters, as evidenced by picks from Lola Young and '
-                                        'Mikayla Geier, indicating an ear for soulful and intimate '
-                                        'storytelling in music.'},
-                            {'name': 'Sarah',
-                            'response': "The user's musical taste reflects a strong affinity for classic "
-                                        'rock, with a noticeable appreciation for the timelessness and '
-                                        'energy of the genre. Additionally, there is an embrace of '
-                                        'soulful, nostalgic picks, highlighting a deep connection to '
-                                        'music that stirs emotion and memory. This blend of classic rock '
-                                        'and soulful nostalgia suggests a preference for music that both '
-                                        'invigorates and soothes, tapping into the rich history of '
-                                        'sound.'}]
-        for response in test_ai_responses:
-                discord_message = f"**AI Commentary for {response['name']}:**\n>>> {response['response']}"
-                discordAnnouncer(use_debug=True, text=discord_message)
+
 
 
 if __name__ == '__main__':
