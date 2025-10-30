@@ -244,11 +244,8 @@ def cycle(use_debug=True, output_dir="outputs",write_csv=True):
     discordAnnouncer(discord_bot_output_channel, discord_song_output)
 
     #Send AI generated commentary to Discord
-    AI_Commentary(use_debug, time_filter='Previous_Month')
-    #discordAnnouncer(discord_bot, discord_bot_output_channel, ai_song_output)
-        
-    # finally:
-    #     file_yearly_pl_csv.close()
+    #AI_Commentary(use_debug, time_filter='Previous_Month')
+    
 
 def _write_csv_file(file_handle, trackdata):
     """Helper function to write CSV data with headers."""
