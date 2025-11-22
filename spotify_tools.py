@@ -244,7 +244,7 @@ def cycle(use_debug=True, output_dir="outputs",write_csv=True):
         debugCycle(ep_playlist_id, sfquery)
     
     # Send Basic Discord announcement
-    discordAnnouncer(discord_bot_output_channel, discord_song_output)
+    discordAnnouncer(use_debug, discord_song_output)
 
     #Send AI generated commentary to Discord
     #AI_Commentary(use_debug, time_filter='Previous_Month')
