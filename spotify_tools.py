@@ -46,7 +46,8 @@ def get_environment_config(use_debug=True):
             "discord_channel": int(os.getenv("LIVE_DISCORD_CHANNEL", "0")),
             "yearly_data": "outputs/Ear Porn!!_2025.csv"
         }
-
+debug_monthly_playlist = os.getenv("DEBUG_MONTHLY_PLAYLIST", "")
+live_monthly_playlist = os.getenv("LIVE_MONTHLY_PLAYLIST", "")
 debug_discord_channel = int(os.getenv("DEBUG_DISCORD_CHANNEL", "0"))
 live_discord_channel = int(os.getenv("LIVE_DISCORD_CHANNEL", "0"))
 
@@ -354,6 +355,33 @@ def split_multiline_string(input_string, max_length=2000):
     
     return parts
 
+def listCurrentMonthSongs(ep_playlist_id='', use_debug=False):
+    """List all songs from the current month's playlist with user, track, and artist info."""
+    if not ep_playlist_id:
+        config = get_environment_config(use_debug)
+        ep_playlist_id = config["monthly_playlist"]
+
+    sfquery = SpotipyAuth()
+    ep_playlist_month = sfquery.get_simplified_playlist_info(ep_playlist_id)
+    
+    # Check if playlist data was retrieved successfully
+    if not ep_playlist_month:
+        return "Error: Could not retrieve playlist data or playlist is empty"
+    
+    playlist_data = sfquery.sp.playlist(ep_playlist_id)
+    if not playlist_data:
+        return "Error: Could not retrieve playlist name"
+    playlist_name = playlist_data.get('name', 'Unknown_Playlist')
+    
+    discord_song_output = f"**{calendar.month_name[int(current_month)]} {playlist_name} Songs**\n**------------------**\n>>> "
+    
+    for track in ep_playlist_month:
+        discord_song_output += (
+            f"{usernameFixer(track['Added By'])} - {track['Track']} by {track['Artist']}\n"
+        )
+    
+    return discord_song_output
+
 def listContributers(ep_playlist_id='', use_debug=False):
     """List contributors with environment support."""
     if not ep_playlist_id:
@@ -470,6 +498,7 @@ def main():
                 'Parse Yearly Data by User(Live)',
                 'AI Commentary from CSV Yearly Data',
                 'AI Commentary from This Month\'s Spotify Data',
+                'Send Current Month Songs to Discord',
                 'write_songs_to_yearly_csv',
                 "Cycle REAL playlist(DANGER)",]
     
@@ -572,6 +601,16 @@ def main():
         pprint(user_songs)
         response=ai_monthly_commentary(user_songs)
         pprint(response)
+    elif selected == 'Send Current Month Songs to Discord':
+        choices = ['Live Discord', 'Debug Discord']
+        selected = questionary.select(
+            "Please choose an option:",
+            choices=choices
+        ).ask()
+        use_debug = True if selected == 'Debug Discord' else False
+        song_list = listCurrentMonthSongs(ep_playlist_id=live_monthly_playlist,use_debug=use_debug)
+        print(song_list)
+        discordAnnouncer(use_debug, text=song_list)
     elif selected == 'write_songs_to_yearly_csv':
         write_songs_to_yearly_csv
         write_songs_to_yearly_csv(use_debug=True)

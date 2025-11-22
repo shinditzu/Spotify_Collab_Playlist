@@ -66,11 +66,6 @@ async def hello(interaction: discord.Interaction):
 async def contributors(interaction: discord.Interaction):
     await interaction.response.send_message(listContributers())
 
-@bot.tree.command(name="penis", description="I call jack a penis")
-async def penis(interaction: discord.Interaction):
-    addSong('1jcSttQBrx05TkPgnB9vZl')
-    await interaction.response.send_message(f"{interaction.user.name} called Jack a Penis!")
-
 @bot.tree.command(name="bubblebutt", description="I do bubblebutt")
 async def bubblebutt(interaction: discord.Interaction):
     addBubbleButt()
