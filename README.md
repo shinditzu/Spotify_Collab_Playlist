@@ -92,6 +92,45 @@ Options include: manual cycle, query tracks, generate AI commentary, send Discor
 | `/hello` | Ping the bot |
 | `/contributors` | List contributors and song counts |
 
+## Architecture
+
+```mermaid
+flowchart TD
+    subgraph Scheduler["spotify_cycle_service.py (daily at 00:15 EST)"]
+        CRON[Daily check] -->|1st of month| CYCLE[Trigger cycle]
+        CRON -->|Last day of month| PREVIEW[Send debug preview]
+    end
+
+    subgraph Core["spotify_tools.py"]
+        CYCLE --> FETCH[Fetch monthly playlist tracks]
+        FETCH --> COPY[Copy tracks → yearly archive]
+        COPY --> REMOVE[Remove tracks from monthly playlist]
+        REMOVE --> CSV[Append to yearly CSV]
+        CSV --> RECAP[Build month recap]
+        RECAP --> COMMENTARY[Generate AI commentary\nvia GPT-4o]
+        COMMENTARY --> ANNOUNCE[Send Discord announcement]
+    end
+
+    subgraph Bot["discord_bot_service.py"]
+        CMD[Slash command received] --> QUERY[Query CSV / Spotify data]
+        QUERY --> REPLY[Reply to Discord channel]
+    end
+
+    subgraph External
+        SPOTIFY[(Spotify API)]
+        DISCORD[(Discord)]
+        OPENAI[(OpenAI GPT-4o)]
+    end
+
+    FETCH <-->|spotipy| SPOTIFY
+    COPY <-->|spotipy| SPOTIFY
+    REMOVE <-->|spotipy| SPOTIFY
+    ANNOUNCE -->|discord.py| DISCORD
+    COMMENTARY <-->|openai SDK| OPENAI
+    CMD -->|discord.py| Bot
+    REPLY -->|discord.py| DISCORD
+```
+
 ## Project structure
 
 ```
